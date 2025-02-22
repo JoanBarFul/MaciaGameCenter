@@ -9,7 +9,7 @@ import android.util.Log;  // Añadimos este import
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "GameCenter.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2; // Incrementar versión
 
     // Tabla Usuarios
     public static final String TABLE_USERS = "users";
@@ -36,6 +36,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COLUMN_USERNAME, "Joan");
         values.put(COLUMN_PASSWORD, "Android");
+        values.put(COLUMN_PROFILE_IMAGE, ""); // Añadir campo de imagen vacío
         long result = db.insert(TABLE_USERS, null, values);
         Log.d("DatabaseHelper", "Usuario predeterminado creado: " + (result != -1));
     }
@@ -58,9 +59,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(TABLE_USERS, new String[]{COLUMN_USERNAME, COLUMN_PASSWORD, COLUMN_PROFILE_IMAGE}, 
             null, null, null, null, null);
         Log.d("DatabaseHelper", "Total usuarios en la base de datos: " + cursor.getCount());
+        // En el método addUser
         while(cursor.moveToNext()) {
-            String dbUsername = cursor.getString(cursor.getColumnIndex(COLUMN_USERNAME));
-            String dbImage = cursor.getString(cursor.getColumnIndex(COLUMN_PROFILE_IMAGE));
+            String dbUsername = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USERNAME));
+            String dbImage = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PROFILE_IMAGE));
             Log.d("DatabaseHelper", "Usuario encontrado: " + dbUsername + ", Imagen: " + dbImage);
         }
         cursor.close();
@@ -75,22 +77,43 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         
         Log.d("DatabaseHelper", "Intentando login con - Username: " + username + ", Password: " + password);
         
-        Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null);
-        int count = cursor.getCount();
-        
-        // Verificar todos los usuarios en la base de datos
+        // Verificar todos los usuarios en la base de datos primero
         Cursor allUsers = db.query(TABLE_USERS, new String[]{COLUMN_USERNAME, COLUMN_PASSWORD}, 
             null, null, null, null, null);
-        Log.d("DatabaseHelper", "Usuarios en la base de datos:");
+        Log.d("DatabaseHelper", "=== Usuarios en la base de datos ===");
+        Log.d("DatabaseHelper", "Total usuarios encontrados: " + allUsers.getCount());
         while(allUsers.moveToNext()) {
-            String dbUsername = allUsers.getString(allUsers.getColumnIndex(COLUMN_USERNAME));
-            String dbPassword = allUsers.getString(allUsers.getColumnIndex(COLUMN_PASSWORD));
-            Log.d("DatabaseHelper", "Usuario: " + dbUsername + ", Password: " + dbPassword);
+            String dbUsername = allUsers.getString(allUsers.getColumnIndexOrThrow(COLUMN_USERNAME));
+            String dbPassword = allUsers.getString(allUsers.getColumnIndexOrThrow(COLUMN_PASSWORD));
+            Log.d("DatabaseHelper", "Usuario encontrado -> Username: " + dbUsername + ", Password: " + dbPassword);
         }
         allUsers.close();
         
+        // Ahora verificar el login
+        Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null);
+        int count = cursor.getCount();
         cursor.close();
+        
         Log.d("DatabaseHelper", "Resultado de la verificación: " + (count > 0));
         return count > 0;
+    }
+    public void getAllUsers() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USERS, 
+            new String[]{COLUMN_USERNAME, COLUMN_PASSWORD, COLUMN_PROFILE_IMAGE}, 
+            null, null, null, null, null);
+        
+        Log.d("DatabaseHelper", "=== Contenido de la base de datos ===");
+        Log.d("DatabaseHelper", "Total usuarios: " + cursor.getCount());
+        
+        while(cursor.moveToNext()) {
+            String username = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USERNAME));
+            String password = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PASSWORD));
+            String imageUri = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PROFILE_IMAGE));
+            Log.d("DatabaseHelper", "Usuario: " + username + 
+                                  ", Password: " + password + 
+                                  ", Image: " + imageUri);
+        }
+        cursor.close();
     }
 }
