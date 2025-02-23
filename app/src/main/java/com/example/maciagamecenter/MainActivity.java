@@ -35,24 +35,28 @@ public class MainActivity extends AppCompatActivity {
         banners.add(new Banner("Dungeon", R.drawable.banner_dungeon));
     
         // Configurar RecyclerView
-        binding.gamesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
+        layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                return 1; // Cada item ocupa 1 espacio (2 columnas)
+            }
+        });
+        binding.gamesRecyclerView.setLayoutManager(layoutManager);
         BannerAdapter adapter = new BannerAdapter(banners);
         binding.gamesRecyclerView.setAdapter(adapter);
     
         // Setup RecyclerView
         binding.gamesRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        
-        // Setup Bottom Navigation
+        // En el método onCreate
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.navigation_home) {
-                // Manejar clic en inicio
                 return true;
-            } else if (itemId == R.id.navigation_games) {
-                // Manejar clic en juegos
+            } else if (itemId == R.id.navigation_leaderboard) {
+                startActivity(new Intent(this, LeaderboardActivity.class));
                 return true;
             } else if (itemId == R.id.navigation_profile) {
-                // Manejar clic en perfil
                 return true;
             }
             return false;

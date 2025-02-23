@@ -25,5 +25,10 @@
         <activity
             android:name=".RegisterActivity"
             android:exported="false"/>
+        <activity
+            android:name=".LeaderboardActivity"
+            android:theme="@style/Theme.MaciaGameCenter"
+            android:exported="true">
+        </activity>
     </application>
 </manifest>
