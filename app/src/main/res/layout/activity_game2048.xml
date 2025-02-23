@@ -18,12 +18,14 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:textSize="24sp"
+        android:textColor="#FFFFFF"
         android:padding="16dp"
         android:text="Score: 0"/>
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="414dp">
+        android:layout_height="414dp"
+        android:padding="8dp">
 
         <GridLayout
             android:layout_width="wrap_content"
@@ -31,72 +33,29 @@
             android:layout_gravity="center"
             android:columnCount="4"
             android:padding="16dp"
+            android:background="@color/grid_background"
             android:rowCount="4"
             android:useDefaultMargins="true">
 
-            <TextView
-                android:id="@+id/cell_0_0"
-                style="@style/GameCell" />
+            <TextView android:id="@+id/cell_0_0" style="@style/GameCell"/>
+            <TextView android:id="@+id/cell_0_1" style="@style/GameCell"/>
+            <TextView android:id="@+id/cell_0_2" style="@style/GameCell"/>
+            <TextView android:id="@+id/cell_0_3" style="@style/GameCell"/>
 
-            <TextView
-                android:id="@+id/cell_0_1"
-                style="@style/GameCell" />
+            <TextView android:id="@+id/cell_1_0" style="@style/GameCell"/>
+            <TextView android:id="@+id/cell_1_1" style="@style/GameCell"/>
+            <TextView android:id="@+id/cell_1_2" style="@style/GameCell"/>
+            <TextView android:id="@+id/cell_1_3" style="@style/GameCell"/>
 
-            <TextView
-                android:id="@+id/cell_0_2"
-                style="@style/GameCell" />
+            <TextView android:id="@+id/cell_2_0" style="@style/GameCell"/>
+            <TextView android:id="@+id/cell_2_1" style="@style/GameCell"/>
+            <TextView android:id="@+id/cell_2_2" style="@style/GameCell"/>
+            <TextView android:id="@+id/cell_2_3" style="@style/GameCell"/>
 
-            <TextView
-                android:id="@+id/cell_0_3"
-                style="@style/GameCell" />
-
-            <TextView
-                android:id="@+id/cell_1_0"
-                style="@style/GameCell" />
-
-            <TextView
-                android:id="@+id/cell_1_1"
-                style="@style/GameCell" />
-
-            <TextView
-                android:id="@+id/cell_1_2"
-                style="@style/GameCell" />
-
-            <TextView
-                android:id="@+id/cell_1_3"
-                style="@style/GameCell" />
-
-            <TextView
-                android:id="@+id/cell_2_0"
-                style="@style/GameCell" />
-
-            <TextView
-                android:id="@+id/cell_2_1"
-                style="@style/GameCell" />
-
-            <TextView
-                android:id="@+id/cell_2_2"
-                style="@style/GameCell" />
-
-            <TextView
-                android:id="@+id/cell_2_3"
-                style="@style/GameCell" />
-
-            <TextView
-                android:id="@+id/cell_3_0"
-                style="@style/GameCell" />
-
-            <TextView
-                android:id="@+id/cell_3_1"
-                style="@style/GameCell" />
-
-            <TextView
-                android:id="@+id/cell_3_2"
-                style="@style/GameCell" />
-
-            <TextView
-                android:id="@+id/cell_3_3"
-                style="@style/GameCell" />
+            <TextView android:id="@+id/cell_3_0" style="@style/GameCell"/>
+            <TextView android:id="@+id/cell_3_1" style="@style/GameCell"/>
+            <TextView android:id="@+id/cell_3_2" style="@style/GameCell"/>
+            <TextView android:id="@+id/cell_3_3" style="@style/GameCell"/>
         </GridLayout>
     </FrameLayout>
 
@@ -105,18 +64,25 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:padding="16dp">
-    <Button
-        android:id="@+id/new_game_button"
-        style="@style/GameButton"
-        android:text="NEW GAME"/>
-    <Button
-        android:id="@+id/undo_button"
-        style="@style/GameButton"
-        android:text="UNDO"/>
-    <Button
-        android:id="@+id/end_game_button"
-        style="@style/GameButton"
-        android:text="END GAME"/>
+        android:padding="16dp"
+        android:weightSum="3">
+        <Button
+            android:id="@+id/new_game_button"
+            style="@style/GameButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="NEW GAME"/>
+        <Button
+            android:id="@+id/undo_button"
+            style="@style/GameButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="UNDO"/>
+        <Button
+            android:id="@+id/end_game_button"
+            style="@style/GameButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="END GAME"/>
     </LinearLayout>
 </LinearLayout>

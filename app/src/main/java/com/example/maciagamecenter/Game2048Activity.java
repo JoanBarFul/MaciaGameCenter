@@ -87,7 +87,20 @@ public class Game2048Activity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
     private void undoMove() {
-        if (previousScore > 0) {
+        // Verificar si hay un estado anterior válido
+        boolean hasValidPreviousState = false;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (previousBoard[i][j] != 0) {
+                    hasValidPreviousState = true;
+                    break;
+                }
+            }
+            if (hasValidPreviousState) break;
+        }
+
+        if (hasValidPreviousState) {
+            // Restaurar el estado anterior
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
                     board[i][j] = previousBoard[i][j];
@@ -95,6 +108,14 @@ public class Game2048Activity extends AppCompatActivity {
             }
             score = previousScore;
             updateUI();
+            
+            // Limpiar el estado anterior después de usarlo
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    previousBoard[i][j] = 0;
+                }
+            }
+            previousScore = 0;
         }
     }
     
