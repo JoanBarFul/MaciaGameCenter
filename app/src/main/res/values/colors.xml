@@ -21,6 +21,8 @@
     <color name="cell_512">#EDC850</color>
     <color name="cell_1024">#EDC53F</color>
     <color name="cell_2048">#EDC22E</color>
-    <color name="game_background">#FBF8EF</color>
+    <color name="game_background">#FAF8EF</color>
+        <color name="button_background">#8F7A66</color>
+        <color name="button_text">#FFFFFF</color>
         <color name="cell_text">#776E65</color>
 </resources>

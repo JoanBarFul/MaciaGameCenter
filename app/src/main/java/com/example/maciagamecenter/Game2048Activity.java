@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.ArrayList;
 import android.graphics.Point;
 import java.util.Random;
+import android.util.Log;
 public class Game2048Activity extends AppCompatActivity {
-    private ActivityGame2048Binding binding;
     private int[][] board = new int[4][4];
     private TextView[][] cellViews = new TextView[4][4];
     private int score = 0;
@@ -26,30 +26,57 @@ public class Game2048Activity extends AppCompatActivity {
     private GestureDetector gestureDetector;
     private static final int SWIPE_THRESHOLD = 100;
     private static final int SWIPE_VELOCITY_THRESHOLD = 100;
-    // Add these at the top of the class
-        private int[][] previousBoard = new int[4][4];
-        private int previousScore = 0;
+    private int[][] previousBoard = new int[4][4];
+    private int previousScore = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityGame2048Binding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        setContentView(R.layout.activity_game2048);
 
         // Setup toolbar
-        setSupportActionBar(binding.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setTitle("2048");
         }
-
-        dbHelper = new DatabaseHelper(this);
-        initializeBoard();
-        setupGestureDetector();
         
-        binding.newGameButton.setOnClickListener(v -> resetGame());
-        binding.undoButton.setOnClickListener(v -> undoMove());
-        binding.endGameButton.setOnClickListener(v -> endGameEarly());
+        // Inicializar los botones primero
+        findViewById(R.id.new_game_button).setOnClickListener(v -> resetGame());
+        findViewById(R.id.undo_button).setOnClickListener(v -> undoMove());
+        findViewById(R.id.end_game_button).setOnClickListener(v -> endGameEarly());
+        
+        // Inicializar el grid después
+        dbHelper = new DatabaseHelper(this);
+        setupGestureDetector();
+        initializeBoard();
+    }
+    private void initializeBoard() {
+        // Initialize cellViews array with TextViews from the layout
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                String cellId = "cell_" + i + "_" + j;  // Cambiar formato del ID
+                int resId = getResources().getIdentifier(cellId, "id", getPackageName());
+                cellViews[i][j] = findViewById(resId);
+                if (cellViews[i][j] == null) {
+                    Log.e("Game2048", "Cell not found: " + cellId);
+                } else {
+                    // Establecer propiedades iniciales de la celda
+                    cellViews[i][j].setBackgroundColor(getResources().getColor(R.color.cell_empty));
+                    cellViews[i][j].setTextSize(24);
+                    cellViews[i][j].setTextColor(getResources().getColor(android.R.color.black));
+                    cellViews[i][j].setGravity(android.view.Gravity.CENTER); // Centrar el texto
+                    cellViews[i][j].setPadding(8, 8, 8, 8);
+                    
+                    // Establecer dimensiones mínimas para las celdas
+                    cellViews[i][j].setMinWidth(96);
+                    cellViews[i][j].setMinHeight(96);
+                }
+            }
+        }
+        
+        resetGame();
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -84,8 +111,9 @@ public class Game2048Activity extends AppCompatActivity {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 TextView cell = cellViews[i][j];
-                int value = board[i][j];
+                if (cell == null) continue; // Evitar NPE
                 
+                int value = board[i][j];
                 if (value == 0) {
                     cell.setText("");
                     cell.setBackgroundColor(getResources().getColor(R.color.cell_empty));
@@ -95,9 +123,46 @@ public class Game2048Activity extends AppCompatActivity {
                 }
             }
         }
-        binding.scoreText.setText("Score: " + score);
+        // Usar try-catch para debuggear el problema
+        try {
+            TextView scoreText = findViewById(R.id.scoreText);
+            if (scoreText != null) {
+                scoreText.setText("Score: " + score);
+            } else {
+                Log.e("Game2048", "scoreText is null");
+            }
+        } catch (Exception e) {
+            Log.e("Game2048", "Error updating score: " + e.getMessage());
+        }
     }
-    
+
+    private void resetGame() {
+        score = 0;
+        previousScore = 0;
+        
+        // Clear board
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                board[i][j] = 0;
+                previousBoard[i][j] = 0;
+            }
+        }
+        
+        // Add initial tiles
+        addNewTile();
+        addNewTile();
+        
+        // Update UI al final
+        try {
+            TextView scoreText = findViewById(R.id.scoreText);
+            if (scoreText != null) {
+                scoreText.setText("Score: 0");
+            }
+            updateUI();
+        } catch (Exception e) {
+            Log.e("Game2048", "Error in resetGame: " + e.getMessage());
+        }
+    }
     private int getCellColor(int value) {
         switch (value) {
             case 2: return getResources().getColor(R.color.cell_2);
@@ -335,97 +400,67 @@ public class Game2048Activity extends AppCompatActivity {
         }
         return super.onTouchEvent(event);
     }
-        private void initializeBoard() {
-                // Initialize cellViews array with TextViews from the layout
-                for (int i = 0; i < 4; i++) {
-                    for (int j = 0; j < 4; j++) {
-                        String cellId = "cell_" + i + j;
-                        int resId = getResources().getIdentifier(cellId, "id", getPackageName());
-                        cellViews[i][j] = findViewById(resId);
-                    }
+    
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
+    private void endGameEarly() {
+        if (score > 0) {
+            gameOver();
+        }
+        resetGame();
+    }
+    private boolean isGameOver() {
+        // Check for empty cells
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (board[i][j] == 0) {
+                    return false;
                 }
-                
-                // Clear board and start new game
-                resetGame();
             }
-        private void resetGame() {
-                score = 0;
-                previousScore = 0;
-                binding.scoreText.setText("Score: 0");
-                                    // Clear board
-                                    for (int i = 0; i < 4; i++) {
-                                        for (int j = 0; j < 4; j++) {
-                                            board[i][j] = 0;
-                                            previousBoard[i][j] = 0;
-                                        }
-                                    }
-                                    
-                                    // Add initial tiles
-                                    addNewTile();
-                                    addNewTile();
-                                    updateUI();
-                                }
-                                
-                                @Override
-                                public void onBackPressed() {
-                                    super.onBackPressed();
-                                    finish();
-                                }
-                                private void endGameEarly() {
-                                    if (score > 0) {
-                                        gameOver();
-                                    }
-                                    resetGame();
-                                }
-                                private boolean isGameOver() {
-                                    // Check for empty cells
-                                    for (int i = 0; i < 4; i++) {
-                                        for (int j = 0; j < 4; j++) {
-                                            if (board[i][j] == 0) {
-                                                return false;
-                                            }
-                                        }
-                                    }
-                                    
-                                    // Check for possible merges horizontally
-                                    for (int i = 0; i < 4; i++) {
-                                        for (int j = 0; j < 3; j++) {
-                                            if (board[i][j] == board[i][j + 1]) {
-                                                return false;
-                                            }
-                                        }
-                                    }
-                                    
-                                    // Check for possible merges vertically
-                                    for (int j = 0; j < 4; j++) {
-                                        for (int i = 0; i < 3; i++) {
-                                            if (board[i][j] == board[i + 1][j]) {
-                                                return false;
-                                            }
-                                        }
-                                    }
-                                    return true;
-                                }
-                                private void gameOver() {
-                                            // Save high score if needed
-                                            SharedPreferences prefs = getSharedPreferences("GamePrefs", MODE_PRIVATE);
-                                            int highScore = prefs.getInt("highScore", 0);
-                                            if (score > highScore) {
-                                                SharedPreferences.Editor editor = prefs.edit();
-                                                editor.putInt("highScore", score);
-                                                editor.apply();
-                                            }
-                                    
-                                            // Save to database
-                                            ContentValues values = new ContentValues();
-                                            values.put("game_name", "2048");
-                                            values.put("score", score);
-                                            values.put("date", System.currentTimeMillis());
-                                            SQLiteDatabase db = dbHelper.getWritableDatabase();
-                                            db.insert("scores", null, values);
-                                            db.close();
-                                    
-                                            // Show game over message
-                                            Toast.makeText(this, "Game Over! Score: " + score, Toast.LENGTH_LONG).show();
-                                        }
-                                }
+        }
+        
+        // Check for possible merges horizontally
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j] == board[i][j + 1]) {
+                    return false;
+                }
+            }
+        }
+        
+        // Check for possible merges vertically
+        for (int j = 0; j < 4; j++) {
+            for (int i = 0; i < 3; i++) {
+                if (board[i][j] == board[i + 1][j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    private void gameOver() {
+                // Save high score if needed
+                SharedPreferences prefs = getSharedPreferences("GamePrefs", MODE_PRIVATE);
+                int highScore = prefs.getInt("highScore", 0);
+                if (score > highScore) {
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putInt("highScore", score);
+                    editor.apply();
+                }
+        
+                // Save to database
+                ContentValues values = new ContentValues();
+                values.put("game_name", "2048");
+                values.put("score", score);
+                values.put("date", System.currentTimeMillis());
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                db.insert("scores", null, values);
+                db.close();
+        
+                // Show game over message
+                Toast.makeText(this, "Game Over! Score: " + score, Toast.LENGTH_LONG).show();
+            }
+    }

@@ -33,6 +33,7 @@ android {
         viewBinding = true
     }
 }
+
 dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
