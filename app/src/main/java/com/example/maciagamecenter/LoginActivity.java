@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.maciagamecenter.database.DatabaseHelper;
 import com.example.maciagamecenter.databinding.ActivityLoginBinding;
+import android.content.SharedPreferences;
 
 public class LoginActivity extends AppCompatActivity {
     private ActivityLoginBinding binding;
@@ -33,12 +34,9 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            DatabaseHelper databaseHelper = new DatabaseHelper(this);
             if (databaseHelper.checkUser(username, password)) {
                 Log.d("LoginActivity", "Login exitoso");
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
+                handleSuccessfulLogin(username);
             } else {
                 Log.d("LoginActivity", "Login fallido");
                 Toast.makeText(this, "Invalid credentials", Toast.LENGTH_SHORT).show();
@@ -49,5 +47,17 @@ public class LoginActivity extends AppCompatActivity {
             Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
             startActivity(intent);
         });
+    }
+
+    private void handleSuccessfulLogin(String username) {
+        SharedPreferences prefs = getSharedPreferences("LoginPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("currentUser", username);
+        editor.apply();
+        
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }
