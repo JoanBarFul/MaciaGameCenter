@@ -1,10 +1,13 @@
 package com.example.maciagamecenter;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import java.util.List;
@@ -24,26 +27,30 @@ public class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerView
     }
 
     @Override
-    public void onBindViewHolder(BannerViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull BannerViewHolder holder, int position) {
         Banner banner = banners.get(position);
-        holder.title.setText(banner.getTitle());
-        Glide.with(holder.itemView.getContext())
-                .load(banner.getImageResource())
-                .into(holder.image);
+        holder.imageView.setImageResource(banner.getImageResId());
+        holder.title.setText(banner.getTitle());  // Add this line to show the title
+        
+        holder.itemView.setOnClickListener(v -> {
+            Context context = v.getContext();
+            if (banner.getTitle().equals("2024")) {
+                context.startActivity(new Intent(context, Game2048Activity.class));
+            }
+        });
     }
-
     @Override
     public int getItemCount() {
         return banners.size();
     }
 
     static class BannerViewHolder extends RecyclerView.ViewHolder {
-        ImageView image;
+        ImageView imageView;    // Changed from 'image' to 'imageView'
         TextView title;
 
         BannerViewHolder(View itemView) {
             super(itemView);
-            image = itemView.findViewById(R.id.bannerImage);
+            imageView = itemView.findViewById(R.id.bannerImage);
             title = itemView.findViewById(R.id.bannerTitle);
         }
     }

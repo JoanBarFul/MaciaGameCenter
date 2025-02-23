@@ -7,4 +7,20 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- 2048 Game Colors -->
+    <color name="cell_empty">#CCCCCC</color>
+    <color name="cell_2">#EEE4DA</color>
+    <color name="cell_4">#EDE0C8</color>
+    <color name="cell_8">#F2B179</color>
+    <color name="cell_16">#F59563</color>
+    <color name="cell_32">#F67C5F</color>
+    <color name="cell_64">#F65E3B</color>
+    <color name="cell_128">#EDCF72</color>
+    <color name="cell_256">#EDCC61</color>
+    <color name="cell_512">#EDC850</color>
+    <color name="cell_1024">#EDC53F</color>
+    <color name="cell_2048">#EDC22E</color>
+    <color name="game_background">#FBF8EF</color>
+        <color name="cell_text">#776E65</color>
 </resources>

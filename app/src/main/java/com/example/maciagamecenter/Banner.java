@@ -2,13 +2,18 @@ package com.example.maciagamecenter;
 
 public class Banner {
     private String title;
-    private int imageResource;
+    private int imageResId;
 
-    public Banner(String title, int imageResource) {
+    public Banner(String title, int imageResId) {
         this.title = title;
-        this.imageResource = imageResource;
+        this.imageResId = imageResId;
     }
 
-    public String getTitle() { return title; }
-    public int getImageResource() { return imageResource; }
+    public String getTitle() {
+        return title;
+    }
+
+    public int getImageResId() {
+        return imageResId;
+    }
 }

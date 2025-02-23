@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     
         dbHelper = new DatabaseHelper(this);
         loadUserData();
+        setupNavigation();
         
         // Inicializar lista de banners
         List<Banner> banners = new ArrayList<>();
@@ -48,7 +49,8 @@ public class MainActivity extends AppCompatActivity {
     
         // Setup RecyclerView
         binding.gamesRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        // En el método onCreate
+        // Remove or comment out this section
+        /*
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.navigation_home) {
@@ -61,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         });
+        */
     }
     
     private void loadUserData() {
@@ -127,4 +130,19 @@ public class MainActivity extends AppCompatActivity {
             Log.e("MainActivity", "Error loading user data", e);
         }
     }
-}
+    private void setupNavigation() {
+        binding.bottomNavigation.setSelectedItemId(R.id.navigation_home);
+        binding.bottomNavigation.setOnItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.navigation_leaderboard) {
+                startActivity(new Intent(this, LeaderboardActivity.class));
+                finish();
+                return true;
+            } else if (item.getItemId() == R.id.navigation_profile) {
+                startActivity(new Intent(this, ProfileActivity.class));
+                finish();
+                return true;
+            }
+            return true;
+        });
+    }
+} // Cierre de la clase MainActivity
