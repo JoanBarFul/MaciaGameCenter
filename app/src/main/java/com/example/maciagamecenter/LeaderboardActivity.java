@@ -32,7 +32,7 @@ public class LeaderboardActivity extends AppCompatActivity {
         dbHelper = new DatabaseHelper(this);
         loadUserProfile();  // Añadir esta línea
         setupGameButtons();
-        loadScores("2024");
+        loadScores("2048"); // Cambiar "2024" por "2048"
         
         // Configurar BottomNavigationView
         binding.bottomNavigation.setSelectedItemId(R.id.navigation_leaderboard);
@@ -51,7 +51,7 @@ public class LeaderboardActivity extends AppCompatActivity {
     }
 
     private void setupGameButtons() {
-        binding.game2024Button.setOnClickListener(v -> loadScores("2024"));
+        binding.game2024Button.setOnClickListener(v -> loadScores("2048")); // Cambiar "2024" por "2048"
         binding.gameDungeonButton.setOnClickListener(v -> loadScores("Dungeon"));
     }
 

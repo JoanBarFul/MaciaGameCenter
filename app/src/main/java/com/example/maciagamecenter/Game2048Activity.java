@@ -465,6 +465,40 @@ public class Game2048Activity extends AppCompatActivity {
             finish();
         }
     }
+   private void gameOver() {
+        // Save high score if needed
+        SharedPreferences prefs = getSharedPreferences("GamePrefs", MODE_PRIVATE);
+        int highScore = prefs.getInt("highScore", 0);
+        if (score > highScore) {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putInt("highScore", score);
+            editor.apply();
+        }
+
+        // Save to database
+        try {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            SharedPreferences loginPrefs = getSharedPreferences("LoginPrefs", MODE_PRIVATE);
+            String username = loginPrefs.getString("currentUser", "");
+
+            if (username != null && !username.isEmpty()) {
+                ContentValues values = new ContentValues();
+                values.put("player_name", username);
+                values.put("game_name", "2048"); // Asegúrate de que sea "2048" y no "2024"
+                values.put("score", score);
+                values.put("date", System.currentTimeMillis());
+                
+                long result = db.insert("game_scores", null, values);
+                if (result != -1) {
+                    Toast.makeText(this, "¡Juego terminado! Puntuación: " + score, Toast.LENGTH_LONG).show();
+                }
+                db.close();
+            }
+        } catch (Exception e) {
+            Log.e("Game2048", "Error saving final score: " + e.getMessage());
+            Toast.makeText(this, "Error al guardar la puntuación", Toast.LENGTH_LONG).show();
+        }
+    }   
     private boolean isGameOver() {
         // Check for empty cells
         for (int i = 0; i < 4; i++) {
@@ -492,28 +526,7 @@ public class Game2048Activity extends AppCompatActivity {
                 }
             }
         }
+        
         return true;
     }
-    private void gameOver() {
-                // Save high score if needed
-                SharedPreferences prefs = getSharedPreferences("GamePrefs", MODE_PRIVATE);
-                int highScore = prefs.getInt("highScore", 0);
-                if (score > highScore) {
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.putInt("highScore", score);
-                    editor.apply();
-                }
-        
-                // Save to database
-                ContentValues values = new ContentValues();
-                values.put("game_name", "2048");
-                values.put("score", score);
-                values.put("date", System.currentTimeMillis());
-                SQLiteDatabase db = dbHelper.getWritableDatabase();
-                db.insert("scores", null, values);
-                db.close();
-        
-                // Show game over message
-                Toast.makeText(this, "Game Over! Score: " + score, Toast.LENGTH_LONG).show();
-            }
-    }
+} // End of Game2048Activity class
