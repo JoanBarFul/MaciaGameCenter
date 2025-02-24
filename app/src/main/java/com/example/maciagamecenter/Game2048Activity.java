@@ -428,10 +428,42 @@ public class Game2048Activity extends AppCompatActivity {
         finish();
     }
     private void endGameEarly() {
-        if (score > 0) {
-            gameOver();
+        try {
+            if (score > 0) {
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                SharedPreferences prefs = getSharedPreferences("LoginPrefs", MODE_PRIVATE);
+                String username = prefs.getString("currentUser", "");
+
+                if (username != null && !username.isEmpty()) {
+                    ContentValues scoreValues = new ContentValues();
+                    scoreValues.put("player_name", username);
+                    scoreValues.put("game_name", "2048");
+                    scoreValues.put("score", score);
+                    scoreValues.put("date", System.currentTimeMillis());
+                    
+                    try {
+                        long result = db.insert("game_scores", null, scoreValues);
+                        
+                        if (result != -1) {
+                            Toast.makeText(this, "Puntuación guardada: " + score, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(this, "Error al guardar la puntuación", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        Log.e("Game2048", "Error al guardar puntuación: " + e.getMessage());
+                        Toast.makeText(this, "Error al guardar la puntuación", Toast.LENGTH_SHORT).show();
+                    } finally {
+                        if (db != null && db.isOpen()) {
+                            db.close();
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.e("Game2048", "Error en endGameEarly: " + e.getMessage());
+        } finally {
+            finish();
         }
-        resetGame();
     }
     private boolean isGameOver() {
         // Check for empty cells
