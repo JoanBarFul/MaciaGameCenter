@@ -4,81 +4,61 @@ import android.graphics.Point;
 
 public class Enemy {
     private Point position;
-    private int speed;
     private int health;
-    private int damage;
-    
-    public Enemy(Point startPosition, int level) {
-        this.position = startPosition;
-        this.speed = Math.min(level, 5);
-        this.health = 50 + (level * 10);
-        this.damage = 5 + (level * 2);
-    }
-    
-    public void moveTowards(Point playerPosition, char[][] dungeon) {
-        // Solo mover si tiene velocidad suficiente
-        for(int i = 0; i < speed; i++) {
-            Point nextStep = calculateNextStep(playerPosition, dungeon);
-            if(nextStep != null) {
-                position = nextStep;
-            }
-        }
+    private int maxHealth;
+    private int attack;
+    private int defense;
+    private int experienceValue;
+    private boolean alive;
+    private int level;
+
+    public Enemy(Point position, int level) {
+        this.position = position;
+        this.level = level;
+        this.maxHealth = 50 + (level * 10);
+        this.health = maxHealth;
+        this.attack = 5 + (level * 2);
+        this.defense = 2 + level;
+        this.experienceValue = 20 + (level * 10);
+        this.alive = true;
     }
 
-    private Point calculateNextStep(Point playerPosition, char[][] dungeon) {
-        int dx = Integer.compare(playerPosition.x, position.x);
-        int dy = Integer.compare(playerPosition.y, position.y);
+    public void moveTowards(Point target, char[][] dungeon) {
+        if (!alive) return;
         
-        // Intentar moverse en la dirección con mayor diferencia primero
-        if(Math.abs(playerPosition.x - position.x) > Math.abs(playerPosition.y - position.y)) {
-            if(isValidMove(new Point(position.x + dx, position.y), dungeon)) {
-                return new Point(position.x + dx, position.y);
-            } else if(isValidMove(new Point(position.x, position.y + dy), dungeon)) {
-                return new Point(position.x, position.y + dy);
-            }
+        Point newPos = new Point(position.x, position.y);
+        
+        // Simple AI: Move towards player
+        if (Math.abs(target.x - position.x) > Math.abs(target.y - position.y)) {
+            newPos.x += Integer.compare(target.x, position.x);
         } else {
-            if(isValidMove(new Point(position.x, position.y + dy), dungeon)) {
-                return new Point(position.x, position.y + dy);
-            } else if(isValidMove(new Point(position.x + dx, position.y), dungeon)) {
-                return new Point(position.x + dx, position.y);
-            }
+            newPos.y += Integer.compare(target.y, position.y);
         }
-        return null;
+        
+        if (isValidMove(newPos, dungeon)) {
+            position = newPos;
+        }
     }
 
-    private boolean isValidMove(Point newPosition, char[][] dungeon) {
-        // Verificar límites del mapa
-        if(newPosition.x < 0 || newPosition.x >= dungeon.length ||
-           newPosition.y < 0 || newPosition.y >= dungeon[0].length) {
+    private boolean isValidMove(Point newPos, char[][] dungeon) {
+        if (newPos.x < 0 || newPos.x >= dungeon.length || 
+            newPos.y < 0 || newPos.y >= dungeon[0].length) {
             return false;
         }
-        
-        // Verificar si la nueva posición es transitable
-        char cell = dungeon[newPosition.x][newPosition.y];
-        return cell == '.' || cell == 'E' || cell == 'S';
-    }
-
-    public Point getPosition() {
-        return position;
+        return dungeon[newPos.x][newPos.y] != '#';
     }
 
     public void takeDamage(int damage) {
-        health -= damage;
+        health = Math.max(0, health - damage);
+        if (health <= 0) {
+            alive = false;
+        }
     }
 
-    public boolean isAlive() {
-        return health > 0;
-    }
-
-    public int getDamage() {
-        return damage;
-    }
-
-    public void setPosition(Point position) {
-        this.position = position;
-    }
-
-    public int getHealth() {
-        return health;
-    }
+    public Point getPosition() { return position; }
+    public int getHealth() { return health; }
+    public int getAttack() { return attack; }
+    public int getDefense() { return defense; }
+    public boolean isAlive() { return alive; }
+    public int getExperienceValue() { return experienceValue; }
 }

@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import java.util.List;
+import com.example.maciagamecenter.mazmorra.MazmorraActivity;
 
 public class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerViewHolder> {
     private List<Banner> banners;
@@ -30,22 +31,25 @@ public class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerView
     public void onBindViewHolder(@NonNull BannerViewHolder holder, int position) {
         Banner banner = banners.get(position);
         holder.imageView.setImageResource(banner.getImageResId());
-        holder.title.setText(banner.getTitle());  // Add this line to show the title
+        holder.title.setText(banner.getTitle());
         
         holder.itemView.setOnClickListener(v -> {
             Context context = v.getContext();
             if (banner.getTitle().equals("2024")) {
                 context.startActivity(new Intent(context, Game2048Activity.class));
+            } else if (banner.getTitle().equals("Dungeon")) {
+                context.startActivity(new Intent(context, MazmorraActivity.class));
             }
         });
     }
+
     @Override
     public int getItemCount() {
         return banners.size();
     }
 
     static class BannerViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageView;    // Changed from 'image' to 'imageView'
+        ImageView imageView;
         TextView title;
 
         BannerViewHolder(View itemView) {

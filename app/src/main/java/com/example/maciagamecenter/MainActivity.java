@@ -71,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
         String username = prefs.getString("currentUser", "");
         
         if (username.isEmpty()) {
-            // Solo redirigir si no estamos ya en LoginActivity
             if (!isFinishing()) {
                 startActivity(new Intent(this, LoginActivity.class));
                 finish();
@@ -79,7 +78,6 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         
-        // Si hay usuario, cargar sus datos
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String[] projection = {
             DatabaseHelper.COLUMN_USERNAME,
@@ -100,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
                 null,
                 null
             );
-            // ... en el método loadUserData()
+
             if (cursor.moveToFirst()) {
                 String name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USERNAME));
                 String imageUri = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PROFILE_IMAGE));
@@ -108,41 +106,29 @@ public class MainActivity extends AppCompatActivity {
                 
                 binding.usernameText.setText(name);
                 binding.userLevel.setText("Nivel " + level);
-            
-                // Cargar imagen de perfil
-                if (imageUri != null && !imageUri.isEmpty()) {
-                    Glide.with(this)
-                        .load(imageUri)
-                        .placeholder(R.drawable.default_profile)
-                        .error(R.drawable.default_profile)
-                        .circleCrop()
-                        .into(binding.profileImage);
-                } else {
-                    // Si no hay imagen, usar la imagen por defecto
-                    Glide.with(this)
-                        .load(R.drawable.default_profile)
-                        .circleCrop()
-                        .into(binding.profileImage);
-                }
             }
             cursor.close();
         } catch (Exception e) {
             Log.e("MainActivity", "Error loading user data", e);
+        } finally {
+            db.close();
         }
     }
+    
+    // Add this method to handle game launches
     private void setupNavigation() {
-        binding.bottomNavigation.setSelectedItemId(R.id.navigation_home);
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.navigation_leaderboard) {
-                startActivity(new Intent(this, LeaderboardActivity.class));
-                finish();
+            int itemId = item.getItemId();
+            if (itemId == R.id.navigation_home) {
                 return true;
-            } else if (item.getItemId() == R.id.navigation_profile) {
+            } else if (itemId == R.id.navigation_leaderboard) {
+                startActivity(new Intent(this, LeaderboardActivity.class));
+                return true;
+            } else if (itemId == R.id.navigation_profile) {
                 startActivity(new Intent(this, ProfileActivity.class));
-                finish();
                 return true;
             }
-            return true;
+            return false;
         });
     }
 } // Cierre de la clase MainActivity

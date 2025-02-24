@@ -38,6 +38,12 @@
             android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"
             android:exported="false" />
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".mazmorra.MazmorraActivity"
+            android:label="Dungeon"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+            android:screenOrientation="portrait"/>
         <!-- Remove the SettingsActivity entry -->
     </application>
 </manifest>

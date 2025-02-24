@@ -11,12 +11,13 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.graphics.Point;
 import java.util.List;
 import java.util.ArrayList;
-
 import androidx.appcompat.app.AppCompatActivity;
-
+import androidx.appcompat.widget.Toolbar;
+import android.view.MenuItem;
 // Cambiar el nombre de la clase de MainActivity a MazmorraActivity
 public class MazmorraActivity extends AppCompatActivity {
     private char[][] dungeon;
@@ -27,16 +28,37 @@ public class MazmorraActivity extends AppCompatActivity {
     private Point keyLocation;
     private Point exitLocation;
     private static final int INITIAL_ENEMIES = 2;
+    private TextView levelText;
+    private TextView healthText;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mazmorra);  // Cambiar esto
         
+        // Setup toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Dungeon");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        
+        levelText = findViewById(R.id.level_text);
+        healthText = findViewById(R.id.health_text);
+        
         initializeLevel();
         setupControls();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
     private void initializeLevel() {
         // Generar mazmorra
         dungeon = DungeonGenerator.createDungeonWithFixedRooms(20, 5, 10);
@@ -49,101 +71,55 @@ public class MazmorraActivity extends AppCompatActivity {
         
         // Colocar llave en un cofre aleatorio
         placeKeyInRandomChest(dungeon);
-        
-        // Actualizar UI
         updateGameUI();
+        updateStatusTexts();
+    }
+
+    private void updateStatusTexts() {
+        levelText.setText("Level: " + currentLevel);
+        healthText.setText("Health: " + player.getHealth() + "/" + player.getMaxHealth());
     }
 
     private void setupControls() {
-        // Implementar controles táctiles para movimiento
         GridLayout mapGrid = findViewById(R.id.map_grid);
         mapGrid.setOnTouchListener(new OnSwipeTouchListener(this) {
             @Override
-            public void onSwipeRight() { movePlayer(Direction.RIGHT); }
+            public void onSwipeRight() { handlePlayerMove(Direction.RIGHT); }
             @Override
-            public void onSwipeLeft() { movePlayer(Direction.LEFT); }
+            public void onSwipeLeft() { handlePlayerMove(Direction.LEFT); }
             @Override
-            public void onSwipeUp() { movePlayer(Direction.UP); }
+            public void onSwipeUp() { handlePlayerMove(Direction.UP); }
             @Override
-            public void onSwipeDown() { movePlayer(Direction.DOWN); }
-        });
-
-        Button btnReiniciar = findViewById(R.id.boton);
-        btnReiniciar.setOnClickListener(v -> {
-            currentLevel = 1;
-            initializeLevel();
+            public void onSwipeDown() { handlePlayerMove(Direction.DOWN); }
         });
     }
 
-    private void movePlayer(Direction direction) {
-        if (player.move(direction, dungeon)) {
-            // Verificar colisiones con objetos
-            checkCollisions();
-            // Mover enemigos
-            moveEnemies();
-            // Actualizar UI
-            updateGameUI();
-        }
-    }
-
-    private void moveEnemies() {
-        for (Enemy enemy : enemies) {
-            if (enemy.isAlive()) {
-                enemy.moveTowards(player.getPosition(), dungeon);
-            }
-        }
-    }
-
-    private void checkCollisions() {
-        Point playerPos = player.getPosition();
-        
-        // Verificar cofres
-        if (dungeon[playerPos.x][playerPos.y] == 'C') {
-            if (playerPos.equals(keyLocation)) {
-                hasKey = true;
-                dungeon[playerPos.x][playerPos.y] = 'c';
-            }
-        }
-        
-        // Verificar salida
-        if (dungeon[playerPos.x][playerPos.y] == 'S' && hasKey) {
-            nextLevel();
-        }
-        
-        // Verificar enemigos
-        for (Enemy enemy : enemies) {
-            if (enemy.isAlive() && playerPos.equals(enemy.getPosition())) {
-                gameOver();
-                return;
-            }
-        }
-    }
-
-    private void nextLevel() {
-        currentLevel++;
-        hasKey = false;
-        initializeLevel();
-    }
-
-    private void gameOver() {
-        // Implementar lógica de fin de juego
-        finish();
-    }
     private void updateGameUI() {
-        // Obtener el GridLayout del mapa
         GridLayout mapGrid = findViewById(R.id.map_grid);
-        mapGrid.removeAllViews(); // Limpiar el grid antes de actualizarlo
+        mapGrid.removeAllViews();
+        
+        // Set the number of columns in the grid
+        mapGrid.setColumnCount(dungeon[0].length);
+        mapGrid.setRowCount(dungeon.length);
 
-        Button btnReiniciar = findViewById(R.id.boton);
+        // Calculate cell size based on screen width and height
+        int screenWidth = getResources().getDisplayMetrics().widthPixels;
+        int screenHeight = mapGrid.getHeight();
+        
+        int cellSize = Math.min(
+            screenWidth / dungeon[0].length,
+            screenHeight / dungeon.length
+        );
 
-        // Llenar el GridLayout con imágenes basadas en el mapa
+        // Fill GridLayout with images based on the map
         for (int i = 0; i < dungeon.length; i++) {
             for (int j = 0; j < dungeon[i].length; j++) {
-                // Crear un FrameLayout para superponer imágenes
                 FrameLayout cell = new FrameLayout(this);
-
-                // Imagen de fondo (suelo o vacío)
                 ImageView backgroundImage = new ImageView(this);
+                
+                // Set image scaling
+                backgroundImage.setScaleType(ImageView.ScaleType.FIT_XY);
+                
                 if (dungeon[i][j] == '#') {
                     backgroundImage.setImageResource(R.drawable.vacio);
                 } else if (dungeon[i][j] == '.') {
@@ -168,19 +144,99 @@ public class MazmorraActivity extends AppCompatActivity {
                 }
 
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-                params.width = 48;
-                params.height = 48;
+                params.width = cellSize;
+                params.height = cellSize;
+                params.setMargins(1, 1, 1, 1);
+                
                 cell.setLayoutParams(params);
-
                 mapGrid.addView(cell);
             }
         }
+    }
+    private void handlePlayerMove(Direction direction) {
+        if (player.move(direction, dungeon)) {
+            checkCollisions();
+            handleEnemyTurns();
+            updateGameUI();
+            updateStatusTexts();
+        }
+    }
 
-        btnReiniciar.setOnClickListener(v -> {
-            Intent intent = new Intent(MazmorraActivity.this, MazmorraActivity.class);
-            startActivity(intent);
-            finish();
-        });
+    private void handleEnemyTurns() {
+        for (Enemy enemy : enemies) {
+            if (enemy.isAlive()) {
+                Point prevPos = enemy.getPosition();
+                enemy.moveTowards(player.getPosition(), dungeon);
+                Point newPos = enemy.getPosition();
+                
+                if (newPos.equals(player.getPosition())) {
+                    handleCombat(enemy);
+                }
+            }
+        }
+    }
+
+    private void handleCombat(Enemy enemy) {
+        int damage = enemy.getAttack() - player.getDefense();
+        if (damage > 0) {
+            player.takeDamage(damage);
+        }
+        
+        if (player.getHealth() <= 0) {
+            gameOver();
+            return;
+        }
+
+        damage = player.getAttack() - enemy.getDefense();
+        if (damage > 0) {
+            enemy.takeDamage(damage);
+            if (!enemy.isAlive()) {
+                player.addExperience(enemy.getExperienceValue());
+            }
+        }
+    }
+
+    private void checkCollisions() {
+        Point playerPos = player.getPosition();
+        
+        if (dungeon[playerPos.x][playerPos.y] == 'C') {
+            if (playerPos.equals(keyLocation)) {
+                hasKey = true;
+                dungeon[playerPos.x][playerPos.y] = 'c';
+                showMessage("You found the key!");
+            }
+        }
+        
+        if (dungeon[playerPos.x][playerPos.y] == 'S' && hasKey) {
+            nextLevel();
+        }
+    }
+
+    private void nextLevel() {
+        currentLevel++;
+        hasKey = false;
+        player.heal(player.getMaxHealth() / 2);
+        showMessage("Level " + currentLevel + " reached!");
+        initializeLevel();
+    }
+
+    private void restartGame() {
+        currentLevel = 1;
+        hasKey = false;
+        initializeLevel();
+        showMessage("Game restarted");
+    }
+
+    private void gameOver() {
+        showMessage("Game Over! Final Level: " + currentLevel);
+        finish();
+    }
+
+    private void showMessage(String message) {
+        TextView messageText = findViewById(R.id.message_text);
+        messageText.setText(message);
+        messageText.setVisibility(View.VISIBLE);
+        messageText.postDelayed(() -> messageText.setVisibility(View.GONE), 2000);
     }
     private Point findEntrance(char[][] dungeon) {
         for (int i = 0; i < dungeon.length; i++) {
