@@ -9,56 +9,91 @@ public class Enemy {
     private int attack;
     private int defense;
     private int experienceValue;
-    private boolean alive;
-    private int level;
+    private static final int BASE_HEALTH = 10;
+    private static final double HEALTH_SCALING = 1.5;
+    private boolean isAlive;
+    private static int turnCounter = 0;
 
     public Enemy(Point position, int level) {
         this.position = position;
-        this.level = level;
-        this.maxHealth = 50 + (level * 10);
+        this.maxHealth = (int)(BASE_HEALTH * (1 + (level - 1) * 0.5));
         this.health = maxHealth;
-        this.attack = 5 + (level * 2);
-        this.defense = 2 + level;
-        this.experienceValue = 20 + (level * 10);
-        this.alive = true;
+        this.attack = 3 + level;
+        this.defense = 1 + (level / 2);
+        this.experienceValue = 5 * level;
+        this.isAlive = true;
+    }
+    
+    // Remove the second constructor completely
+    
+    public Point getPosition() {
+        return position;
+    }
+    
+    public void setPosition(Point position) {
+        this.position = position;
     }
 
-    public void moveTowards(Point target, char[][] dungeon) {
-        if (!alive) return;
-        
-        Point newPos = new Point(position.x, position.y);
-        
-        // Simple AI: Move towards player
-        if (Math.abs(target.x - position.x) > Math.abs(target.y - position.y)) {
-            newPos.x += Integer.compare(target.x, position.x);
-        } else {
-            newPos.y += Integer.compare(target.y, position.y);
-        }
-        
-        if (isValidMove(newPos, dungeon)) {
-            position = newPos;
-        }
+    public int getHealth() {
+        return health;
     }
 
-    private boolean isValidMove(Point newPos, char[][] dungeon) {
-        if (newPos.x < 0 || newPos.x >= dungeon.length || 
-            newPos.y < 0 || newPos.y >= dungeon[0].length) {
-            return false;
-        }
-        return dungeon[newPos.x][newPos.y] != '#';
+    public int getAttack() {
+        return attack;
+    }
+
+    public int getDefense() {
+        return defense;
+    }
+
+    public int getExperienceValue() {
+        return experienceValue;
+    }
+
+    public boolean isAlive() {
+        return isAlive;
     }
 
     public void takeDamage(int damage) {
-        health = Math.max(0, health - damage);
+        health -= damage;
         if (health <= 0) {
-            alive = false;
+            isAlive = false;
         }
     }
 
-    public Point getPosition() { return position; }
-    public int getHealth() { return health; }
-    public int getAttack() { return attack; }
-    public int getDefense() { return defense; }
-    public boolean isAlive() { return alive; }
-    public int getExperienceValue() { return experienceValue; }
+    public static void incrementTurn() {
+        turnCounter++;
+    }
+
+    public static boolean shouldMove() {
+        return turnCounter % 2 == 0;
+    }
+
+    public static void resetTurnCounter() {
+        turnCounter = 0;
+    }
+
+    public void moveTowards(Point target, char[][] dungeon) {
+        if (!isAlive) return;
+
+        int dx = Integer.compare(target.x - position.x, 0);
+        int dy = Integer.compare(target.y - position.y, 0);
+
+        // Try to move in x direction
+        if (dx != 0 && isValidMove(position.x + dx, position.y, dungeon)) {
+            position.x += dx;
+            return;
+        }
+
+        // Try to move in y direction
+        if (dy != 0 && isValidMove(position.x, position.y + dy, dungeon)) {
+            position.y += dy;
+        }
+    }
+
+    private boolean isValidMove(int x, int y, char[][] dungeon) {
+        return x >= 0 && x < dungeon.length && 
+               y >= 0 && y < dungeon[0].length && 
+               (dungeon[x][y] == '.' || dungeon[x][y] == 'E' || dungeon[x][y] == 'S');
+    }
 }

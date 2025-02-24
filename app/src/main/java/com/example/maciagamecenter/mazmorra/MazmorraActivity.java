@@ -30,6 +30,15 @@ public class MazmorraActivity extends AppCompatActivity {
     private static final int INITIAL_ENEMIES = 2;
     private TextView levelText;
     private TextView healthText;
+    // Add these fields to the class
+        private boolean inBattle = false;
+        private Enemy currentEnemy = null;
+        private TextView battleText;
+        private Button rollDiceButton;
+        private FrameLayout battlePanel;
+        // Remove these fields
+            private ImageView enemyDiceView;
+            private ImageView playerDiceView;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,11 +55,17 @@ public class MazmorraActivity extends AppCompatActivity {
         
         levelText = findViewById(R.id.level_text);
         healthText = findViewById(R.id.health_text);
+        battlePanel = findViewById(R.id.battle_panel);
+        battleText = findViewById(R.id.battle_text);
+        rollDiceButton = findViewById(R.id.roll_dice_button);
+        // Remove these lines
+        // enemyDiceView = findViewById(R.id.enemy_dice);
+        // playerDiceView = findViewById(R.id.player_dice);
+        rollDiceButton.setOnClickListener(v -> handleDiceRoll());
         
         initializeLevel();
         setupControls();
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
@@ -74,128 +89,78 @@ public class MazmorraActivity extends AppCompatActivity {
         updateGameUI();
         updateStatusTexts();
     }
-
+    private void handleCombat(Enemy enemy) {
+        inBattle = true;
+        currentEnemy = enemy;
+        battlePanel.setVisibility(View.VISIBLE);
+        battleText.setText("Battle started! Roll your dice!");
+        rollDiceButton.setEnabled(true);
+    }
+    private void handleDiceRoll() {
+        if (!inBattle || currentEnemy == null) return;
+    
+        int playerRoll = (int)(Math.random() * 6) + 1;
+        int enemyRoll = (int)(Math.random() * 6) + 1;
+    
+        // Update battle text with roll results
+        battleText.setText("Your roll: " + playerRoll + " | Enemy roll: " + enemyRoll);
+    
+        int difference = Math.abs(playerRoll - enemyRoll);
+        
+        if (playerRoll > enemyRoll) {
+            currentEnemy.takeDamage(difference);
+            battleText.setText(battleText.getText() + "\nYou won! Damage dealt: " + difference);
+            if (!currentEnemy.isAlive()) {
+                endBattle(true);
+            }
+        } else if (enemyRoll > playerRoll) {
+            player.takeDamage(difference);
+            battleText.setText(battleText.getText() + "\nYou lost! Damage taken: " + difference);
+            if (player.getHealth() <= 0) {
+                gameOver();
+                return;
+            }
+        } else {
+            battleText.setText(battleText.getText() + "\nIt's a tie! No damage dealt");
+        }
+        
+        updateStatusTexts();
+        rollDiceButton.setEnabled(false);
+        battlePanel.postDelayed(() -> {
+            if (inBattle) {
+                rollDiceButton.setEnabled(true);
+                battleText.setText("Roll again!");
+            }
+        }, 2000);
+    }
+    private void endBattle(boolean playerWon) {
+        inBattle = false;
+        battlePanel.setVisibility(View.GONE);
+        if (playerWon) {
+            player.addExperience(currentEnemy.getExperienceValue());
+            showMessage("Enemy defeated!");
+        }
+        currentEnemy = null;
+        updateGameUI();
+    }
+    // Remove this entire method as we're not using it anymore
+    /*
+    private int getDiceResource(int value) {
+        switch (value) {
+            case 1: return R.drawable.dice1;
+            case 2: return R.drawable.dice2;
+            case 3: return R.drawable.dice3;
+            case 4: return R.drawable.dice4;
+            case 5: return R.drawable.dice5;
+            case 6: return R.drawable.dice6;
+            default: return R.drawable.dice1;
+        }
+    }
+    */
     private void updateStatusTexts() {
         levelText.setText("Level: " + currentLevel);
         healthText.setText("Health: " + player.getHealth() + "/" + player.getMaxHealth());
     }
-
-    private void setupControls() {
-        GridLayout mapGrid = findViewById(R.id.map_grid);
-        mapGrid.setOnTouchListener(new OnSwipeTouchListener(this) {
-            @Override
-            public void onSwipeRight() { handlePlayerMove(Direction.RIGHT); }
-            @Override
-            public void onSwipeLeft() { handlePlayerMove(Direction.LEFT); }
-            @Override
-            public void onSwipeUp() { handlePlayerMove(Direction.UP); }
-            @Override
-            public void onSwipeDown() { handlePlayerMove(Direction.DOWN); }
-        });
-    }
-
-    private void updateGameUI() {
-        GridLayout mapGrid = findViewById(R.id.map_grid);
-        mapGrid.removeAllViews();
-        
-        // Set the number of columns in the grid
-        mapGrid.setColumnCount(dungeon[0].length);
-        mapGrid.setRowCount(dungeon.length);
-
-        // Calculate cell size based on screen width and height
-        int screenWidth = getResources().getDisplayMetrics().widthPixels;
-        int screenHeight = mapGrid.getHeight();
-        
-        int cellSize = Math.min(
-            screenWidth / dungeon[0].length,
-            screenHeight / dungeon.length
-        );
-
-        // Fill GridLayout with images based on the map
-        for (int i = 0; i < dungeon.length; i++) {
-            for (int j = 0; j < dungeon[i].length; j++) {
-                FrameLayout cell = new FrameLayout(this);
-                ImageView backgroundImage = new ImageView(this);
-                
-                // Set image scaling
-                backgroundImage.setScaleType(ImageView.ScaleType.FIT_XY);
-                
-                if (dungeon[i][j] == '#') {
-                    backgroundImage.setImageResource(R.drawable.vacio);
-                } else if (dungeon[i][j] == '.') {
-                    backgroundImage.setImageResource(R.drawable.suelo);
-                } else if (dungeon[i][j] == 'E') {
-                    backgroundImage.setImageResource(R.drawable.entrada);
-                } else if (dungeon[i][j] == 'S') {
-                    backgroundImage.setImageResource(R.drawable.salida);
-                } else if (dungeon[i][j] == 'C') {
-                    backgroundImage.setImageResource(R.drawable.cofre);
-                } else if (dungeon[i][j] == 'c') {
-                    backgroundImage.setImageResource(R.drawable.cofreabierto);
-                }
-
-                cell.addView(backgroundImage);
-
-                if (dungeon[i][j] == '#') {
-                    checkAndPlaceWall(cell, dungeon, i, j, 0);
-                    checkAndPlaceWall(cell, dungeon, i, j, 90);
-                    checkAndPlaceWall(cell, dungeon, i, j, 180);
-                    checkAndPlaceWall(cell, dungeon, i, j, 270);
-                }
-
-                GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-                params.width = cellSize;
-                params.height = cellSize;
-                params.setMargins(1, 1, 1, 1);
-                
-                cell.setLayoutParams(params);
-                mapGrid.addView(cell);
-            }
-        }
-    }
-    private void handlePlayerMove(Direction direction) {
-        if (player.move(direction, dungeon)) {
-            checkCollisions();
-            handleEnemyTurns();
-            updateGameUI();
-            updateStatusTexts();
-        }
-    }
-
-    private void handleEnemyTurns() {
-        for (Enemy enemy : enemies) {
-            if (enemy.isAlive()) {
-                Point prevPos = enemy.getPosition();
-                enemy.moveTowards(player.getPosition(), dungeon);
-                Point newPos = enemy.getPosition();
-                
-                if (newPos.equals(player.getPosition())) {
-                    handleCombat(enemy);
-                }
-            }
-        }
-    }
-
-    private void handleCombat(Enemy enemy) {
-        int damage = enemy.getAttack() - player.getDefense();
-        if (damage > 0) {
-            player.takeDamage(damage);
-        }
-        
-        if (player.getHealth() <= 0) {
-            gameOver();
-            return;
-        }
-
-        damage = player.getAttack() - enemy.getDefense();
-        if (damage > 0) {
-            enemy.takeDamage(damage);
-            if (!enemy.isAlive()) {
-                player.addExperience(enemy.getExperienceValue());
-            }
-        }
-    }
-
     private void checkCollisions() {
         Point playerPos = player.getPosition();
         
@@ -301,6 +266,19 @@ public class MazmorraActivity extends AppCompatActivity {
             }
         }
     }
+    private void addWall(FrameLayout cell, float rotation) {
+        ImageView wallImage = new ImageView(this);
+        wallImage.setImageResource(R.drawable.pared);
+        wallImage.setScaleType(ImageView.ScaleType.FIT_XY);
+        wallImage.setRotation(rotation);
+        
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
+        );
+        wallImage.setLayoutParams(params);
+        cell.addView(wallImage);
+    }
     
     // Método para obtener las direcciones basadas en la rotación
     private int[] getDirection(float rotation) {
@@ -317,18 +295,139 @@ public class MazmorraActivity extends AppCompatActivity {
                 return new int[]{0, 0}; // Caso por defecto (no debería ocurrir)
         }
     }
-    
-    // Método para añadir la pared con una orientación específica
-    private void addWall(FrameLayout cell, float rotation) {
-        ImageView wallImage = new ImageView(this);
-        wallImage.setImageResource(R.drawable.pared); // Imagen para la pared
-    
-        // Rotar la pared hacia la dirección correspondiente
-        wallImage.setRotation(rotation);
-    
-        // Añadir la pared al FrameLayout
-        cell.addView(wallImage);
+    private void setupControls() {
+        GridLayout mapGrid = findViewById(R.id.map_grid);
+        mapGrid.setOnTouchListener(new OnSwipeTouchListener(this) {
+            @Override
+            public void onSwipeRight() { handlePlayerMove(Direction.RIGHT); }
+            @Override
+            public void onSwipeLeft() { handlePlayerMove(Direction.LEFT); }
+            @Override
+            public void onSwipeUp() { handlePlayerMove(Direction.UP); }
+            @Override
+            public void onSwipeDown() { handlePlayerMove(Direction.DOWN); }
+        });
     }
+
+    private void handlePlayerMove(Direction direction) {
+        if (player.move(direction, dungeon)) {
+            checkCollisions();
+            handleEnemyTurns();
+            updateGameUI();
+            updateStatusTexts();
+        }
+    }
+    private void updateGameUI() {
+        GridLayout mapGrid = findViewById(R.id.map_grid);
+        mapGrid.removeAllViews();
+        
+        mapGrid.setColumnCount(dungeon[0].length);
+        mapGrid.setRowCount(dungeon.length);
     
+        int screenWidth = getResources().getDisplayMetrics().widthPixels;
+        int screenHeight = mapGrid.getHeight();
+        int cellSize = Math.min(
+            screenWidth / dungeon[0].length,
+            screenHeight / dungeon.length
+        );
+    
+        // Fill GridLayout with images based on the map
+        for (int i = 0; i < dungeon.length; i++) {
+            for (int j = 0; j < dungeon[i].length; j++) {
+                FrameLayout cell = new FrameLayout(this);
+                ImageView backgroundImage = new ImageView(this);
+                backgroundImage.setScaleType(ImageView.ScaleType.FIT_XY);
+                
+                // Set background tile
+                if (dungeon[i][j] == '#') {
+                    backgroundImage.setImageResource(R.drawable.vacio);
+                } else if (dungeon[i][j] == '.') {
+                    backgroundImage.setImageResource(R.drawable.suelo);
+                } else if (dungeon[i][j] == 'E') {
+                    backgroundImage.setImageResource(R.drawable.entrada);
+                } else if (dungeon[i][j] == 'S') {
+                    backgroundImage.setImageResource(R.drawable.salida);
+                } else if (dungeon[i][j] == 'C') {
+                    backgroundImage.setImageResource(R.drawable.cofre);
+                } else if (dungeon[i][j] == 'c') {
+                    backgroundImage.setImageResource(R.drawable.cofreabierto);
+                }
+                cell.addView(backgroundImage);
+    
+                // Add walls if needed
+                if (dungeon[i][j] == '#') {
+                    checkAndPlaceWall(cell, dungeon, i, j, 0);
+                    checkAndPlaceWall(cell, dungeon, i, j, 90);
+                    checkAndPlaceWall(cell, dungeon, i, j, 180);
+                    checkAndPlaceWall(cell, dungeon, i, j, 270);
+                }
+    
+                // Add player and enemies
+                Point playerPos = player.getPosition();
+                if (i == playerPos.x && j == playerPos.y) {
+                    addCharacterToCell(cell, R.drawable.player);
+                }
+    
+                for (Enemy enemy : enemies) {
+                    if (enemy.isAlive() && enemy.getPosition().x == i && enemy.getPosition().y == j) {
+                        addCharacterToCell(cell, R.drawable.enemy);
+                    }
+                }
+    
+                GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+                params.width = cellSize;
+                params.height = cellSize;
+                params.setMargins(1, 1, 1, 1);
+                
+                cell.setLayoutParams(params);
+                mapGrid.addView(cell);
+            }
+        }
+    }
+    private void addCharacterToCell(FrameLayout cell, int drawableResource) {
+        ImageView image = new ImageView(this);
+        image.setImageResource(drawableResource);
+        image.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
+        );
+        params.setMargins(4, 4, 4, 4);
+        image.setLayoutParams(params);
+        cell.addView(image);
+    }
+    private void handleEnemyTurns() {
+        if (!Enemy.shouldMove()) {
+            Enemy.incrementTurn();
+            return;
+        }
+
+        for (Enemy enemy : enemies) {
+            if (enemy.isAlive()) {
+                // Check for adjacent position to player before moving
+                Point playerPos = player.getPosition();
+                Point enemyPos = enemy.getPosition();
+                
+                if (isAdjacent(enemyPos, playerPos)) {
+                    handleCombat(enemy);
+                } else {
+                    Point prevPos = enemy.getPosition();
+                    enemy.moveTowards(playerPos, dungeon);
+                    Point newPos = enemy.getPosition();
+                    
+                    if (newPos.equals(playerPos)) {
+                        handleCombat(enemy);
+                        if (enemy.isAlive()) {
+                            enemy.setPosition(prevPos);
+                        }
+                    }
+                }
+            }
+        }
+        Enemy.incrementTurn();
+    }
+    private boolean isAdjacent(Point p1, Point p2) {
+        return Math.abs(p1.x - p2.x) <= 1 && Math.abs(p1.y - p2.y) <= 1;
+    }
 }
 

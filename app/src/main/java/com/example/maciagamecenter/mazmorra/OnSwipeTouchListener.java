@@ -41,7 +41,6 @@ public class OnSwipeTouchListener implements OnTouchListener {
                         } else {
                             onSwipeLeft();
                         }
-                        return true;
                     }
                 } else {
                     if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
@@ -50,7 +49,6 @@ public class OnSwipeTouchListener implements OnTouchListener {
                         } else {
                             onSwipeUp();
                         }
-                        return true;
                     }
                 }
             } catch (Exception exception) {

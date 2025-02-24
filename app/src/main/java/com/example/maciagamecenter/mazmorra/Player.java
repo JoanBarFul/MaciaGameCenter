@@ -3,24 +3,27 @@ package com.example.maciagamecenter.mazmorra;
 import android.graphics.Point;
 
 public class Player {
+    // Add this with other class variables at the top
     private Point position;
     private int health;
     private int maxHealth;
     private int attack;
     private int defense;
     private int experience;
-    private int level;
+    private int level = 1;  // Add this line
+    private static final int INITIAL_HEALTH = 40;
 
     public Player(Point startPosition) {
         this.position = startPosition;
-        this.health = 100;
-        this.maxHealth = 100;
-        this.attack = 10;
-        this.defense = 5;
+        this.maxHealth = INITIAL_HEALTH;
+        this.health = maxHealth;
+        this.attack = 5;
+        this.defense = 2;
         this.experience = 0;
-        this.level = 1;
+        this.level = 1;     // Initialize level in constructor
     }
-
+    // Remove the second constructor completely
+    
     public boolean move(Direction direction, char[][] dungeon) {
         Point newPosition = new Point(position.x, position.y);
         

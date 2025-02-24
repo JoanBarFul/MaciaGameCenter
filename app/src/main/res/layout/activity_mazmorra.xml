@@ -1,67 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+        android:background="?attr/colorPrimary"/>
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/level_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
+        android:padding="8dp"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/health_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
+        android:layout_alignParentEnd="true"
+        android:padding="8dp"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"/>
+
+    <!-- Keep this TextView with all its attributes -->
+        android:id="@+id/message_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        android:background="#80FFFFFF"
+        android:padding="16dp"
+        android:visibility="gone"/>
+    
+    <!-- Remove this duplicate TextView -->
+    <!--
+    <TextView
+        android:id="@+id/message_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"/>
+    -->
+    <GridLayout
+        android:id="@+id/map_grid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:background="#1A1A1A">
+        android:layout_below="@id/level_text"
+        android:layout_above="@id/battle_panel"
+        android:background="@android:color/black"
+        android:padding="8dp"/>
+
+    <TextView
+        android:id="@+id/message_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"/>
+
+    <FrameLayout
+        android:id="@+id/battle_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#80000000"
+        android:padding="16dp"
+        android:visibility="gone">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/status_background"
-            android:padding="12dp">
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/level_text"
-                android:layout_width="0dp"
+                android:id="@+id/battle_text"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textSize="20sp"
-                android:textStyle="bold"
+                android:textAlignment="center"
                 android:textColor="#FFFFFF"
-                android:text="Level: 1"/>
+                android:textSize="18sp"/>
 
-            <TextView
-                android:id="@+id/health_text"
-                android:layout_width="0dp"
+            <Button
+                android:id="@+id/roll_dice_button"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="#FFFFFF"
-                android:text="Health: 100/100"/>
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:text="Roll Dice"/>
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/message_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:gravity="center"
-            android:padding="8dp"
-            android:textColor="#FFFFFF"
-            android:background="#80000000"
-            android:visibility="gone"/>
-
-        <GridLayout
-            android:id="@+id/map_grid"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="8dp"
-            android:useDefaultMargins="false"
-            android:alignmentMode="alignBounds"/>
-    </LinearLayout>
-</LinearLayout>
+    </FrameLayout>
+</RelativeLayout>
