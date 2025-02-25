@@ -340,6 +340,21 @@ public class MazmorraActivity extends AppCompatActivity {
     }
 
     private void handlePlayerMove(Direction direction) {
+        // Verificación estricta de estado de batalla
+        if (inBattle || currentEnemy != null) {
+            showMessage("¡No puedes moverte durante el combate!");
+            return;
+        }
+
+        Point currentPos = player.getPosition();
+        // Comprobar si hay enemigos adyacentes antes de moverse
+        for (Enemy enemy : enemies) {
+            if (enemy.isAlive() && isAdjacent(currentPos, enemy.getPosition())) {
+                handleCombat(enemy);
+                return;
+            }
+        }
+
         if (player.move(direction, dungeon)) {
             checkCollisions();
             handleEnemyTurns();
