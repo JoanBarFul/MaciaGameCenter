@@ -74,47 +74,48 @@
         android:visibility="gone">
 
         <LinearLayout
-            android:id="@+id/enemy_health_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="16dp">
-
-            <TextView
-                android:id="@+id/enemy_health_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"/>
-
-            <ProgressBar
-                android:id="@+id/enemy_health_bar"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:gravity="center">
 
             <TextView
                 android:id="@+id/battle_text"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAlignment="center"
                 android:textColor="#FFFFFF"
-                android:textSize="18sp"/>
+                android:textSize="18sp"
+                android:layout_marginBottom="16dp"/>
 
             <Button
                 android:id="@+id/roll_dice_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="8dp"
-                android:text="Roll Dice"/>
+                android:text="ROLL DICE"
+                android:textStyle="bold"/>
+
+            <LinearLayout
+                android:id="@+id/enemy_health_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="16dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/enemy_health_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"/>
+
+                <ProgressBar
+                    android:id="@+id/enemy_health_bar"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"/>
+            </LinearLayout>
         </LinearLayout>
     </FrameLayout>
 </RelativeLayout>
