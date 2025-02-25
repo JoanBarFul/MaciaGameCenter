@@ -206,9 +206,37 @@ public class MazmorraActivity extends AppCompatActivity {
         currentLevel++;
         hasKey = false;
         showMessage("Level " + currentLevel + " reached!");
-        initializeLevel();
+        initializeLevel();  // First initialize the level
+        showLevelUpRewards();  // Then show rewards
     }
 
+    private void showLevelUpRewards() {
+        PowerUpFragment powerUpFragment = new PowerUpFragment();
+        powerUpFragment.setPowerUpListener(new PowerUpFragment.PowerUpListener() {
+            @Override
+            public void onAttackSelected() {
+                player.increaseDamage(1);
+                showMessage("Attack increased!");
+                getSupportFragmentManager().beginTransaction()
+                    .remove(powerUpFragment)
+                    .commit();
+            }
+
+            @Override
+            public void onHealSelected() {
+                player.heal(player.getMaxHealth());
+                showMessage("Fully healed!");
+                getSupportFragmentManager().beginTransaction()
+                    .remove(powerUpFragment)
+                    .commit();
+            }
+        });
+
+        getSupportFragmentManager().beginTransaction()
+            .add(android.R.id.content, powerUpFragment)
+            .addToBackStack(null)
+            .commit();
+    }
     private void restartGame() {
         currentLevel = 1;
         hasKey = false;

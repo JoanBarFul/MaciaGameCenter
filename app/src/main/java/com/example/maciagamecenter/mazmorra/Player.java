@@ -92,9 +92,13 @@ public class Player {
     public void takeDamage(int damage) {
         health = Math.max(0, health - damage);
     }
+    public void increaseDamage(int amount) {
+        // Increase base damage
+        this.attack += amount;  // Changed from this.damage to this.attack
+    }
     
     public void heal(int amount) {
-        health = Math.min(maxHealth, health + amount);
+        this.health = Math.min(this.health + amount, this.maxHealth);
     }
     
     public void addExperience(int exp) {
