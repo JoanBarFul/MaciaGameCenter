@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.graphics.Point;
 import java.util.List;
+import android.widget.ProgressBar;
 import java.util.ArrayList;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -37,7 +38,16 @@ public class MazmorraActivity extends AppCompatActivity {
     private Button rollDiceButton;
     private FrameLayout battlePanel;
     private LinearLayout enemyHealthContainer;  // Añadir esta declaración
-    
+    private void updateEnemyHealthBar() {
+        if (currentEnemy != null) {
+            TextView enemyHealthText = findViewById(R.id.enemy_health_text);
+            ProgressBar healthBar = findViewById(R.id.enemy_health_bar);
+            
+            healthBar.setMax(currentEnemy.getMaxHealth());
+            healthBar.setProgress(currentEnemy.getHealth());
+            enemyHealthText.setText(currentEnemy.getHealth() + "/" + currentEnemy.getMaxHealth());
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,8 +102,11 @@ public class MazmorraActivity extends AppCompatActivity {
         inBattle = true;
         currentEnemy = enemy;
         battlePanel.setVisibility(View.VISIBLE);
+        enemyHealthContainer.setVisibility(View.VISIBLE);
+        rollDiceButton.setVisibility(View.VISIBLE);
         battleText.setText("Battle started! Roll your dice!");
         rollDiceButton.setEnabled(true);
+        updateEnemyHealthBar();  // Añadir esta línea
     }
     private void handleDiceRoll() {
         if (!inBattle || currentEnemy == null) return;
@@ -109,6 +122,7 @@ public class MazmorraActivity extends AppCompatActivity {
         if (playerRoll > enemyRoll) {
             currentEnemy.takeDamage(difference);
             battleText.setText(battleText.getText() + "\nYou won! Damage dealt: " + difference);
+            updateEnemyHealthBar();  // Añadir esta línea
             if (!currentEnemy.isAlive()) {
                 endBattle(true);
             }
@@ -135,6 +149,9 @@ public class MazmorraActivity extends AppCompatActivity {
     private void endBattle(boolean playerWon) {
         inBattle = false;
         battlePanel.setVisibility(View.GONE);
+        enemyHealthContainer.setVisibility(View.GONE);
+        rollDiceButton.setVisibility(View.GONE);
+        
         if (playerWon) {
             player.addExperience(currentEnemy.getExperienceValue());
             showMessage("Enemy defeated!");
@@ -208,8 +225,9 @@ public class MazmorraActivity extends AppCompatActivity {
         
         // Auto-ocultar el mensaje después de 2 segundos
         battlePanel.postDelayed(() -> {
-            battlePanel.setVisibility(View.GONE);
-            if (inBattle) {
+            if (!inBattle) {
+                battlePanel.setVisibility(View.GONE);
+            } else {
                 rollDiceButton.setVisibility(View.VISIBLE);
                 enemyHealthContainer.setVisibility(View.VISIBLE);
             }
