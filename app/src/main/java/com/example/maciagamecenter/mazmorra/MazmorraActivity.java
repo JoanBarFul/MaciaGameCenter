@@ -6,6 +6,7 @@ import com.example.maciagamecenter.R;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.LinearLayout;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -30,15 +31,12 @@ public class MazmorraActivity extends AppCompatActivity {
     private static final int INITIAL_ENEMIES = 2;
     private TextView levelText;
     private TextView healthText;
-    // Add these fields to the class
-        private boolean inBattle = false;
-        private Enemy currentEnemy = null;
-        private TextView battleText;
-        private Button rollDiceButton;
-        private FrameLayout battlePanel;
-        // Remove these fields
-            private ImageView enemyDiceView;
-            private ImageView playerDiceView;
+    private boolean inBattle = false;
+    private Enemy currentEnemy = null;
+    private TextView battleText;
+    private Button rollDiceButton;
+    private FrameLayout battlePanel;
+    private LinearLayout enemyHealthContainer;  // Añadir esta declaración
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +56,7 @@ public class MazmorraActivity extends AppCompatActivity {
         battlePanel = findViewById(R.id.battle_panel);
         battleText = findViewById(R.id.battle_text);
         rollDiceButton = findViewById(R.id.roll_dice_button);
+        enemyHealthContainer = findViewById(R.id.enemy_health_container);  // Añadir esta línea
         // Remove these lines
         // enemyDiceView = findViewById(R.id.enemy_dice);
         // playerDiceView = findViewById(R.id.player_dice);
@@ -198,10 +197,23 @@ public class MazmorraActivity extends AppCompatActivity {
     }
 
     private void showMessage(String message) {
-        TextView messageText = findViewById(R.id.message_text);
-        messageText.setText(message);
-        messageText.setVisibility(View.VISIBLE);
-        messageText.postDelayed(() -> messageText.setVisibility(View.GONE), 2000);
+        battlePanel.setVisibility(View.VISIBLE);
+        battleText.setText(message);
+        battleText.setTextColor(getResources().getColor(android.R.color.white));
+        battleText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        
+        // Ocultar elementos de batalla cuando es un mensaje
+        rollDiceButton.setVisibility(View.GONE);
+        enemyHealthContainer.setVisibility(View.GONE);
+        
+        // Auto-ocultar el mensaje después de 2 segundos
+        battlePanel.postDelayed(() -> {
+            battlePanel.setVisibility(View.GONE);
+            if (inBattle) {
+                rollDiceButton.setVisibility(View.VISIBLE);
+                enemyHealthContainer.setVisibility(View.VISIBLE);
+            }
+        }, 2000);
     }
     private Point findEntrance(char[][] dungeon) {
         for (int i = 0; i < dungeon.length; i++) {
