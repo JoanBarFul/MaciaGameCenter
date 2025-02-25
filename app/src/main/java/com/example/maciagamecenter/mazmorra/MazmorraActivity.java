@@ -181,15 +181,19 @@ public class MazmorraActivity extends AppCompatActivity {
     private void updateStatusTexts() {
         levelText.setText("Level: " + currentLevel);
         healthText.setText("Health: " + player.getHealth() + "/" + player.getMaxHealth());
+        levelText.setTextColor(getResources().getColor(android.R.color.white));
+        healthText.setTextColor(getResources().getColor(android.R.color.white));
     }
     private void checkCollisions() {
         Point playerPos = player.getPosition();
         
         if (dungeon[playerPos.x][playerPos.y] == 'C') {
+            dungeon[playerPos.x][playerPos.y] = 'c';
             if (playerPos.equals(keyLocation)) {
                 hasKey = true;
-                dungeon[playerPos.x][playerPos.y] = 'c';
                 showMessage("You found the key!");
+            } else {
+                showMessage("Empty chest!");
             }
         }
         
@@ -314,7 +318,7 @@ public class MazmorraActivity extends AppCompatActivity {
     }
     private void addWall(FrameLayout cell, float rotation) {
         ImageView wallImage = new ImageView(this);
-        wallImage.setImageResource(R.drawable.pared);
+        wallImage.setImageResource(R.drawable.imgpared);
         wallImage.setScaleType(ImageView.ScaleType.FIT_XY);
         wallImage.setRotation(rotation);
         
@@ -401,17 +405,17 @@ public class MazmorraActivity extends AppCompatActivity {
                 
                 // Set background tile
                 if (dungeon[i][j] == '#') {
-                    backgroundImage.setImageResource(R.drawable.vacio);
+                    backgroundImage.setImageResource(android.R.color.transparent);
                 } else if (dungeon[i][j] == '.') {
-                    backgroundImage.setImageResource(R.drawable.suelo);
+                    backgroundImage.setImageResource(R.drawable.imgsuelo);
                 } else if (dungeon[i][j] == 'E') {
-                    backgroundImage.setImageResource(R.drawable.entrada);
+                    backgroundImage.setImageResource(R.drawable.imgentrada);
                 } else if (dungeon[i][j] == 'S') {
-                    backgroundImage.setImageResource(R.drawable.salida);
+                    backgroundImage.setImageResource(R.drawable.imgsalida);
                 } else if (dungeon[i][j] == 'C') {
-                    backgroundImage.setImageResource(R.drawable.cofre);
+                    backgroundImage.setImageResource(R.drawable.imgcofre);
                 } else if (dungeon[i][j] == 'c') {
-                    backgroundImage.setImageResource(R.drawable.cofreabierto);
+                    backgroundImage.setImageResource(R.drawable.imgcofreabierto);
                 }
                 cell.addView(backgroundImage);
     
@@ -431,7 +435,7 @@ public class MazmorraActivity extends AppCompatActivity {
     
                 for (Enemy enemy : enemies) {
                     if (enemy.isAlive() && enemy.getPosition().x == i && enemy.getPosition().y == j) {
-                        addCharacterToCell(cell, R.drawable.enemy);
+                        addCharacterToCell(cell, R.drawable.slime);
                     }
                 }
     
