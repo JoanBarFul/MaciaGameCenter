@@ -12,7 +12,9 @@ public class Player {
     private int experience;
     private int level = 1;  // Add this line
     private static final int INITIAL_HEALTH = 40;
-
+    private float rotation = 0;  // 0: derecha, 90: abajo, 180: izquierda, 270: arriba
+    // Eliminar el constructor sin argumentos si existe
+    
     public Player(Point startPosition) {
         this.position = startPosition;
         this.maxHealth = INITIAL_HEALTH;
@@ -20,11 +22,16 @@ public class Player {
         this.attack = 5;
         this.defense = 2;
         this.experience = 0;
-        this.level = 1;     // Initialize level in constructor
+        this.level = 1;
+        this.rotation = 0;  // Inicializar la rotación
     }
-    // Remove the second constructor completely
-    public void setPosition(Point position) {
-        this.position = position;
+    
+    public float getRotation() {
+        return rotation;
+    }
+    
+    public void setRotation(float rotation) {
+        this.rotation = rotation;
     }
     
     public boolean move(Direction direction, char[][] dungeon) {
@@ -33,15 +40,19 @@ public class Player {
         switch (direction) {
             case UP:
                 newPosition.x--;
+                rotation = 270;
                 break;
             case DOWN:
                 newPosition.x++;
+                rotation = 90;
                 break;
             case LEFT:
                 newPosition.y--;
+                rotation = 180;
                 break;
             case RIGHT:
                 newPosition.y++;
+                rotation = 0;
                 break;
         }
 
@@ -62,6 +73,10 @@ public class Player {
     
     public Point getPosition() {
         return position;
+    }
+    
+    public void setPosition(Point position) {
+        this.position = position;
     }
     
     public int getHealth() { return health; }

@@ -426,7 +426,7 @@ public class MazmorraActivity extends AppCompatActivity {
                 // Add player and enemies
                 Point playerPos = player.getPosition();
                 if (i == playerPos.x && j == playerPos.y) {
-                    addCharacterToCell(cell, R.drawable.player);
+                    addCharacterToCell(cell, R.drawable.caballero);
                 }
     
                 for (Enemy enemy : enemies) {
@@ -449,6 +449,18 @@ public class MazmorraActivity extends AppCompatActivity {
         ImageView image = new ImageView(this);
         image.setImageResource(drawableResource);
         image.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        
+        // Si es el caballero, aplicar rotación
+        if (drawableResource == R.drawable.caballero) {
+            if (inBattle && currentEnemy != null) {
+                // Calcular ángulo hacia el enemigo durante el combate
+                float angle = calculateAngleToEnemy(player.getPosition(), currentEnemy.getPosition());
+                image.setRotation(angle);
+            } else {
+                image.setRotation(player.getRotation());
+            }
+        }
+        
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.MATCH_PARENT,
             FrameLayout.LayoutParams.MATCH_PARENT
@@ -456,6 +468,12 @@ public class MazmorraActivity extends AppCompatActivity {
         params.setMargins(4, 4, 4, 4);
         image.setLayoutParams(params);
         cell.addView(image);
+    }
+    
+    private float calculateAngleToEnemy(Point playerPos, Point enemyPos) {
+        float dx = enemyPos.y - playerPos.y;
+        float dy = enemyPos.x - playerPos.x;
+        return (float) (Math.toDegrees(Math.atan2(dy, dx)));
     }
     private void handleEnemyTurns() {
         if (!Enemy.shouldMove()) {
