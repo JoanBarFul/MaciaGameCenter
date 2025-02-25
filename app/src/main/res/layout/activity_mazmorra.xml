@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/mazbackgorund">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -29,15 +30,7 @@
         android:textSize="16sp"/>
 
     <!-- Keep this TextView with all its attributes -->
-        android:id="@+id/message_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:textColor="@android:color/black"
-        android:textSize="18sp"
-        android:background="#80FFFFFF"
-        android:padding="16dp"
-        android:visibility="gone"/>
+
     
     <!-- Remove this duplicate TextView -->
     <!--
@@ -54,7 +47,7 @@
         android:layout_height="match_parent"
         android:layout_below="@id/level_text"
         android:layout_above="@id/battle_panel"
-        android:background="@android:color/black"
+        android:background="@android:color/transparent"
         android:padding="8dp"/>
 
     <TextView
