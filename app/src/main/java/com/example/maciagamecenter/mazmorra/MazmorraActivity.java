@@ -87,8 +87,13 @@ public class MazmorraActivity extends AppCompatActivity {
         // Generar mazmorra
         dungeon = DungeonGenerator.createDungeonWithFixedRooms(20, 5, 10);
         
-        // Inicializar jugador en la entrada
-        player = new Player(findEntrance(dungeon));
+        if (player == null) {
+            // Solo crear nuevo jugador si no existe
+            player = new Player(findEntrance(dungeon));
+        } else {
+            // Si el jugador existe, solo actualizar su posición
+            player.setPosition(findEntrance(dungeon));
+        }
         
         // Generar enemigos
         enemies = generateEnemies(currentLevel);
@@ -196,7 +201,6 @@ public class MazmorraActivity extends AppCompatActivity {
     private void nextLevel() {
         currentLevel++;
         hasKey = false;
-        player.heal(player.getMaxHealth() / 2);
         showMessage("Level " + currentLevel + " reached!");
         initializeLevel();
     }
@@ -250,12 +254,24 @@ public class MazmorraActivity extends AppCompatActivity {
         
         for (int i = 0; i < numEnemies; i++) {
             Point enemyPosition;
+            boolean validPosition;
             do {
+                validPosition = true;
                 // Buscar una posición válida (suelo) para el enemigo
                 int x = (int) (Math.random() * dungeon.length);
                 int y = (int) (Math.random() * dungeon[0].length);
                 enemyPosition = new Point(x, y);
-            } while (dungeon[enemyPosition.x][enemyPosition.y] != '.' || 
+                
+                // Verificar que no hay otro enemigo en esta posición
+                for (Enemy existingEnemy : enemies) {
+                    if (existingEnemy.getPosition().equals(enemyPosition)) {
+                        validPosition = false;
+                        break;
+                    }
+                }
+                
+            } while (!validPosition || 
+                    dungeon[enemyPosition.x][enemyPosition.y] != '.' || 
                     player.getPosition().equals(enemyPosition));
             
             enemies.add(new Enemy(enemyPosition, level));
