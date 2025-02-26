@@ -29,11 +29,10 @@ public class MainActivity extends AppCompatActivity {
         dbHelper = new DatabaseHelper(this);
         loadUserData();
         setupNavigation();
-        
         // Inicializar lista de banners
         List<Banner> banners = new ArrayList<>();
-        banners.add(new Banner("2024", R.drawable.banner_2024));
-        banners.add(new Banner("Dungeon", R.drawable.banner_dungeon));
+        banners.add(new Banner("", R.drawable.banner2048));  // Cambiado de banner_2024 a banner2048
+        banners.add(new Banner("", R.drawable.gungeongamebanner));
     
         // Configurar RecyclerView
         GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
