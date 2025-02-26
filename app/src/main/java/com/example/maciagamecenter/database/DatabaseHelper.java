@@ -10,7 +10,9 @@ import android.util.Log;  // Añadimos este import
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "GameCenter.db";
     private static final int DATABASE_VERSION = 4; // Incrementado de 3 a 4
-    // Tabla Usuarios
+    private static String currentUsername = null;  // Keep only one declaration here
+    
+    // Database table and column names
     public static final String TABLE_USERS = "users";
     public static final String COLUMN_ID = "id";
     public static final String COLUMN_USERNAME = "username";
@@ -65,10 +67,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long result = db.insert(TABLE_USERS, null, userValues);
         Log.d("DatabaseHelper", "Usuario predeterminado creado: " + (result != -1));
         
-        // Resto del código de puntuaciones se mantiene igual...
+        // Add default scores
         ContentValues scoreValues = new ContentValues();
         
-        // Puntuaciones para 2024
+        // Scores for 2024
         scoreValues.put(COLUMN_GAME_NAME, "2024");
         scoreValues.put(COLUMN_PLAYER_NAME, "Joan");
         scoreValues.put(COLUMN_SCORE, 1000);
@@ -80,7 +82,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         scoreValues.put(COLUMN_SCORE, 800);
         db.insert(TABLE_GAME_SCORES, null, scoreValues);
         
-        // Puntuaciones para Dungeon
+        // Scores for Dungeon
         scoreValues.clear();
         scoreValues.put(COLUMN_GAME_NAME, "Dungeon");
         scoreValues.put(COLUMN_PLAYER_NAME, "Joan");
@@ -93,7 +95,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         scoreValues.put(COLUMN_SCORE, 300);
         db.insert(TABLE_GAME_SCORES, null, scoreValues);
     }
-    
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Eliminar tablas existentes
@@ -172,5 +173,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                                       ", Image: " + imageUri);
         }
         cursor.close();
+    }
+    public void saveDungeonScore(int score) {
+        if (currentUsername == null) {
+            Log.e("DatabaseHelper", "No user logged in");
+            return;
+        }
     }
 }

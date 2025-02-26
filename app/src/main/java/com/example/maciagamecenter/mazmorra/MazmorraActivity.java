@@ -3,6 +3,7 @@ package com.example.maciagamecenter.mazmorra;
 
 // Añadir esta importación
 import com.example.maciagamecenter.R;
+import com.example.maciagamecenter.database.DatabaseHelper;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,8 +23,14 @@ import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 // Cambiar el nombre de la clase de MainActivity a MazmorraActivity
 public class MazmorraActivity extends AppCompatActivity {
+    // Add DatabaseHelper field
+    private DatabaseHelper dbHelper;
+    
     // Add this field with other class variables
     private boolean powerUpSelected = true; // Start as true for initial level
+    private static final int ENEMY_KILL_SCORE = 30;
+    private static final int LEVEL_COMPLETE_SCORE = 200;
+    private int score = 0;
     
     private char[][] dungeon;
     private Player player;
@@ -55,7 +62,7 @@ public class MazmorraActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mazmorra);  // Cambiar esto
-        
+        dbHelper = new DatabaseHelper(this);  // Initialize DatabaseHelper
         // Setup toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -161,6 +168,7 @@ public class MazmorraActivity extends AppCompatActivity {
         rollDiceButton.setVisibility(View.GONE);
         
         if (playerWon) {
+            score += ENEMY_KILL_SCORE; // Add score for killing enemy
             player.addExperience(currentEnemy.getExperienceValue());
             showMessage("Enemy defeated!");
         }
@@ -207,6 +215,7 @@ public class MazmorraActivity extends AppCompatActivity {
 
     private void nextLevel() {
         currentLevel++;
+        score += LEVEL_COMPLETE_SCORE; // Add score for completing level
         hasKey = false;
         powerUpSelected = false; // Reset flag for new level
         showMessage("Level " + currentLevel + " reached!");
@@ -249,12 +258,20 @@ public class MazmorraActivity extends AppCompatActivity {
         initializeLevel();
         showMessage("Game restarted");
     }
-
     private void gameOver() {
-        showMessage("Game Over! Final Level: " + currentLevel);
-        finish();
+        // Save score to database
+        dbHelper.saveDungeonScore(score);
+        
+        // Show game over fragment
+        GameOverFragment gameOverFragment = new GameOverFragment();
+        gameOverFragment.setScore(score);
+        gameOverFragment.setLevel(currentLevel);
+        
+        getSupportFragmentManager().beginTransaction()
+            .add(android.R.id.content, gameOverFragment)
+            .addToBackStack(null)
+            .commit();
     }
-
     private void showMessage(String message) {
         battlePanel.setVisibility(View.VISIBLE);
         battleText.setText(message);
