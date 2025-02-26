@@ -10,14 +10,14 @@ public class Enemy {
     private int experienceValue;
     private static int turnCounter = 0;
     private static final int MOVE_FREQUENCY = 2;
-    private static final int BASE_HEALTH = 3;
-    private static final int BASE_XP = 50;
+    private static final int BASE_HEALTH = 10;  // Cambiado de 3 a 10 para volver al valor original
+    private static final int BASE_XP = 20;  // Añadir esta línea
     
     public Enemy(Point position, int level) {
         this.position = position;
         this.health = BASE_HEALTH + level;
         this.maxHealth = this.health;
-        this.attackBonus = (level - 1) / 2; // +1 every two levels
+        this.attackBonus = (level - 1) / 2;
         this.experienceValue = BASE_XP + (level * 10);
     }
     

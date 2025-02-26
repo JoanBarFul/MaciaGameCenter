@@ -10,9 +10,10 @@ public class Player {
     private int attack;
     private int defense;
     private int experience;
-    private int level = 1;  // Add this line
+    private int level = 1;
     private static final int INITIAL_HEALTH = 40;
-    private float rotation = 0;  // 0: derecha, 90: abajo, 180: izquierda, 270: arriba
+    private float rotation = 0;
+    private int experienceToNextLevel = 100;  // Añadir esta línea
     // Eliminar el constructor sin argumentos si existe
     
     public Player(Point startPosition) {
@@ -23,7 +24,8 @@ public class Player {
         this.defense = 2;
         this.experience = 0;
         this.level = 1;
-        this.rotation = 0;  // Inicializar la rotación
+        this.rotation = 0;
+        this.experienceToNextLevel = 100;  // Añadir esta línea
     }
     
     public float getRotation() {
@@ -107,7 +109,14 @@ public class Player {
     
     public void addExperience(int exp) {
         experience += exp;
-        checkLevelUp();
+        // Comprobar si sube de nivel
+        if (experience >= experienceToNextLevel) {
+            level++;
+            experience = 0;
+            experienceToNextLevel *= 1.5;
+            maxHealth += 2;
+            // Ya no curamos automáticamente al subir de nivel
+        }
     }
     
     private void checkLevelUp() {
@@ -115,7 +124,7 @@ public class Player {
         if (experience >= expNeeded) {
             level++;
             maxHealth += 20;
-            health = maxHealth;
+            // Ya no curamos automáticamente al subir de nivel
             attack += 5;
             defense += 3;
             experience -= expNeeded;
