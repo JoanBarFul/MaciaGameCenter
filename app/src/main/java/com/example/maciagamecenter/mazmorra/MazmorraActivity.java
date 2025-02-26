@@ -82,8 +82,16 @@ public class MazmorraActivity extends AppCompatActivity {
         // playerDiceView = findViewById(R.id.player_dice);
         rollDiceButton.setOnClickListener(v -> handleDiceRoll());
         
-        initializeLevel();
-        setupControls();
+        // Get the GridLayout
+        GridLayout mapGrid = findViewById(R.id.map_grid);
+        
+        // Wait for layout to be measured before updating UI
+        mapGrid.post(() -> {
+            initializeLevel();
+            setupControls();
+            updateGameUI();
+            updateStatusTexts();
+        });
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -126,11 +134,14 @@ public class MazmorraActivity extends AppCompatActivity {
     private void handleDiceRoll() {
         if (!inBattle || currentEnemy == null) return;
     
-        int playerRoll = (int)(Math.random() * 6) + 1;
-        int enemyRoll = (int)(Math.random() * 6) + 1;
+        int playerRoll = (int)(Math.random() * 6) + 1 + player.getAttackBonus();
+        int enemyRoll = (int)(Math.random() * 6) + 1 + currentEnemy.getAttackBonus();
     
         // Update battle text with roll results
-        battleText.setText("Your roll: " + playerRoll + " | Enemy roll: " + enemyRoll);
+        battleText.setText("Your roll: " + (playerRoll - player.getAttackBonus()) + 
+                         " (+" + player.getAttackBonus() + ") | Enemy roll: " + 
+                         (enemyRoll - currentEnemy.getAttackBonus()) +
+                         " (+" + currentEnemy.getAttackBonus() + ")");
     
         int difference = Math.abs(playerRoll - enemyRoll);
         
@@ -170,10 +181,11 @@ public class MazmorraActivity extends AppCompatActivity {
         if (playerWon) {
             score += ENEMY_KILL_SCORE; // Add score for killing enemy
             player.addExperience(currentEnemy.getExperienceValue());
-            showMessage("Enemy defeated!");
+            showMessage("Enemy defeated!"); // Mensaje más simple
         }
         currentEnemy = null;
         updateGameUI();
+        updateStatusTexts(); // Asegurarse de que la UI de salud está actualizada
     }
     // Remove this entire method as we're not using it anymore
     /*

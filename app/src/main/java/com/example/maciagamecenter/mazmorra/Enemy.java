@@ -6,77 +6,40 @@ public class Enemy {
     private Point position;
     private int health;
     private int maxHealth;
-    private int attack;
-    private int defense;
+    private int attackBonus;
     private int experienceValue;
-    private static final int BASE_HEALTH = 10;
-    private static final double HEALTH_SCALING = 1.5;
-    private boolean isAlive;
     private static int turnCounter = 0;
-
+    private static final int MOVE_FREQUENCY = 2;
+    private static final int BASE_HEALTH = 3;
+    private static final int BASE_XP = 50;
+    
     public Enemy(Point position, int level) {
         this.position = position;
-        this.maxHealth = (int)(BASE_HEALTH * (1 + (level - 1) * 0.5));
-        this.health = maxHealth;
-        this.attack = 3 + level;
-        this.defense = 1 + (level / 2);
-        this.experienceValue = 5 * level;
-        this.isAlive = true;
+        this.health = BASE_HEALTH + level;
+        this.maxHealth = this.health;
+        this.attackBonus = (level - 1) / 2; // +1 every two levels
+        this.experienceValue = BASE_XP + (level * 10);
     }
     
-    // Remove the second constructor completely
+    // Getter methods
+    public Point getPosition() { return position; }
+    public int getHealth() { return health; }
+    public int getMaxHealth() { return maxHealth; }
+    public int getAttackBonus() { return attackBonus; }
+    public int getExperienceValue() { return experienceValue; }
     
-    public Point getPosition() {
-        return position;
-    }
+    // Setter method
+    public void setPosition(Point position) { this.position = position; }
     
-    public void setPosition(Point position) {
-        this.position = position;
-    }
-
-    public int getHealth() {
-        return health;
-    }
-    public int getMaxHealth() {
-        return maxHealth;
-    }
-    public int getAttack() {
-        return attack;
-    }
-
-    public int getDefense() {
-        return defense;
-    }
-
-    public int getExperienceValue() {
-        return experienceValue;
-    }
-
-    public boolean isAlive() {
-        return isAlive;
-    }
-
-    public void takeDamage(int damage) {
-        health -= damage;
-        if (health <= 0) {
-            isAlive = false;
-        }
-    }
-
-    public static void incrementTurn() {
-        turnCounter++;
-    }
-
-    public static boolean shouldMove() {
-        return turnCounter % 2 == 0;
-    }
-
-    public static void resetTurnCounter() {
-        turnCounter = 0;
-    }
-
+    // Other methods
+    public boolean isAlive() { return health > 0; }
+    public void takeDamage(int damage) { health = Math.max(0, health - damage); }
+    
+    public static boolean shouldMove() { return turnCounter % MOVE_FREQUENCY == 0; }
+    public static void incrementTurn() { turnCounter++; }
+    
     public void moveTowards(Point target, char[][] dungeon) {
-        if (!isAlive) return;
+        if (!isAlive()) return;  // Changed from isAlive to isAlive()
 
         int dx = Integer.compare(target.x - position.x, 0);
         int dy = Integer.compare(target.y - position.y, 0);

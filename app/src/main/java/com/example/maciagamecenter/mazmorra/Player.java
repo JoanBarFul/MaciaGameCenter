@@ -92,11 +92,15 @@ public class Player {
     public void takeDamage(int damage) {
         health = Math.max(0, health - damage);
     }
+    private int attackBonus = 0;  // Add this field
+    
     public void increaseDamage(int amount) {
-        // Increase base damage
-        this.attack += amount;  // Changed from this.damage to this.attack
+        attackBonus += amount;  // Accumulate the bonus instead of setting it
     }
     
+    public int getAttackBonus() {
+        return attackBonus;
+    }
     public void heal(int amount) {
         this.health = Math.min(this.health + amount, this.maxHealth);
     }
