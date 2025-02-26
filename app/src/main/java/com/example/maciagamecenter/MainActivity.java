@@ -35,14 +35,14 @@ public class MainActivity extends AppCompatActivity {
         setupNavigation();
         // Inicializar lista de banners
         List<Banner> banners = new ArrayList<>();
-        banners.add(new Banner("", R.drawable.banner2048));  // Cambiado de banner_2024 a banner2048
+        banners.add(new Banner("", R.drawable.banner2048));
         banners.add(new Banner("", R.drawable.gungeongamebanner));
-    // Configurar RecyclerView
+        // Configurar RecyclerView
         GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
         layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                return 1; // Cada item ocupa 1 espacio (2 columnas)
+                return 1;
             }
         });
         binding.gamesRecyclerView.setLayoutManager(layoutManager);
@@ -93,10 +93,10 @@ public class MainActivity extends AppCompatActivity {
                     android.net.Uri uri = android.net.Uri.parse(imageUri);
                     Log.d("MainActivity", "Loading image with URI: " + uri);
 
-                    // Usar Glide directamente como en las otras actividades
+
                     Glide.with(this)
                         .load(uri)
-                        .circleCrop()  // Usar circleCrop() como en las otras actividades
+                        .circleCrop()
                         .placeholder(R.drawable.default_profile)
                         .error(R.drawable.default_profile)
                         .into(binding.profileImage);
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         db.close();
     }
     
-    // Add this method to handle game launches
+
     private void setupNavigation() {
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
@@ -127,4 +127,4 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
     }
-} // Cierre de la clase MainActivity
+}

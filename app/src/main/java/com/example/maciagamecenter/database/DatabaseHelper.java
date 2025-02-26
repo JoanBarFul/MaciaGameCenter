@@ -5,12 +5,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;  // Añadimos este import
+import android.util.Log; 
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "GameCenter.db";
-    private static final int DATABASE_VERSION = 4; // Incrementado de 3 a 4
-    private static String currentUsername = null;  // Keep only one declaration here
+    private static final int DATABASE_VERSION = 4; 
+    private static String currentUsername = null; 
     
     // Database table and column names
     public static final String TABLE_USERS = "users";
@@ -97,10 +97,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Eliminar tablas existentes
+       
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_GAME_SCORES);
-        // Recrear tablas
+      
         onCreate(db);
     }
     // Add the method here at class level
@@ -208,7 +208,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    // Add this method to get scores
+    
     public Cursor getGameScores(String gameName) {
         SQLiteDatabase db = this.getReadableDatabase();
         String[] columns = {COLUMN_PLAYER_NAME, COLUMN_SCORE, COLUMN_DATE};
