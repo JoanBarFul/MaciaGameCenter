@@ -103,6 +103,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Recrear tablas
         onCreate(db);
     }
+    // Add the method here at class level
+    public static void setCurrentUsername(String username) {
+        currentUsername = username;
+        Log.d("DatabaseHelper", "Current username set to: " + username);
+    }
+    // Fix the addUser method by removing the misplaced setCurrentUsername method
     public boolean addUser(String username, String password, String imageUri) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -110,14 +116,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_PASSWORD, password);
         values.put(COLUMN_PROFILE_IMAGE, imageUri);
         
+        // Add this line to perform the insert
         long result = db.insert(TABLE_USERS, null, values);
         Log.d("DatabaseHelper", "Nuevo usuario agregado - Username: " + username + ", Resultado: " + (result != -1));
         
-        // Verificar usuarios en la base de datos después de la inserción
+        // Verification code
         Cursor cursor = db.query(TABLE_USERS, new String[]{COLUMN_USERNAME, COLUMN_PASSWORD, COLUMN_PROFILE_IMAGE}, 
             null, null, null, null, null);
         Log.d("DatabaseHelper", "Total usuarios en la base de datos: " + cursor.getCount());
-        // En el método addUser
+        
         while(cursor.moveToNext()) {
             String dbUsername = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USERNAME));
             String dbImage = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PROFILE_IMAGE));
@@ -179,5 +186,37 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Log.e("DatabaseHelper", "No user logged in");
             return;
         }
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues scoreValues = new ContentValues();
+        scoreValues.put(COLUMN_GAME_NAME, "Dungeon");
+        scoreValues.put(COLUMN_SCORE, score);
+        scoreValues.put(COLUMN_PLAYER_NAME, currentUsername);
+        
+        long result = db.insert(TABLE_GAME_SCORES, null, scoreValues);
+        Log.d("DatabaseHelper", "Dungeon score saved: " + result + " for user: " + currentUsername + " with score: " + score);
+        
+        // Update user stats
+        ContentValues userValues = new ContentValues();
+        userValues.put(COLUMN_GAMES_PLAYED, "games_played + 1");
+        userValues.put(COLUMN_XP, "experience_points + " + score);
+
+        String whereClause = COLUMN_USERNAME + " = ?";
+        String[] whereArgs = {currentUsername};
+        
+        db.update(TABLE_USERS, userValues, whereClause, whereArgs);
+        
+        db.close();
+    }
+
+    // Add this method to get scores
+    public Cursor getGameScores(String gameName) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {COLUMN_PLAYER_NAME, COLUMN_SCORE, COLUMN_DATE};
+        String selection = COLUMN_GAME_NAME + " = ?";
+        String[] selectionArgs = {gameName};
+        String orderBy = COLUMN_SCORE + " DESC";
+        
+        return db.query(TABLE_GAME_SCORES, columns, selection, selectionArgs, 
+                       null, null, orderBy);
     }
 }

@@ -159,7 +159,7 @@ public class MazmorraActivity extends AppCompatActivity {
                 rollDiceButton.setEnabled(true);
                 battleText.setText("Roll again!");
             }
-        }, 2000);
+        }, 500); // Changed from 2000 to 1000 milliseconds (1 second)
     }
     private void endBattle(boolean playerWon) {
         inBattle = false;

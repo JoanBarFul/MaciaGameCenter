@@ -34,13 +34,7 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            if (databaseHelper.checkUser(username, password)) {
-                Log.d("LoginActivity", "Login exitoso");
-                handleSuccessfulLogin(username);
-            } else {
-                Log.d("LoginActivity", "Login fallido");
-                Toast.makeText(this, "Invalid credentials", Toast.LENGTH_SHORT).show();
-            }
+            handleLogin(username, password);
         });
 
         binding.registerTextView.setOnClickListener(v -> {
@@ -49,6 +43,16 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    private void handleLogin(String username, String password) {
+        if (databaseHelper.checkUser(username, password)) {
+            DatabaseHelper.setCurrentUsername(username);
+            Log.d("LoginActivity", "Login exitoso");
+            handleSuccessfulLogin(username);
+        } else {
+            Log.d("LoginActivity", "Login fallido");
+            Toast.makeText(this, "Invalid credentials", Toast.LENGTH_SHORT).show();
+        }
+    }
     private void handleSuccessfulLogin(String username) {
         SharedPreferences prefs = getSharedPreferences("LoginPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
