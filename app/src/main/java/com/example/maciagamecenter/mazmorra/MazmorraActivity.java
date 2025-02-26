@@ -22,6 +22,9 @@ import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 // Cambiar el nombre de la clase de MainActivity a MazmorraActivity
 public class MazmorraActivity extends AppCompatActivity {
+    // Add this field with other class variables
+    private boolean powerUpSelected = true; // Start as true for initial level
+    
     private char[][] dungeon;
     private Player player;
     private List<Enemy> enemies;
@@ -205,6 +208,7 @@ public class MazmorraActivity extends AppCompatActivity {
     private void nextLevel() {
         currentLevel++;
         hasKey = false;
+        powerUpSelected = false; // Reset flag for new level
         showMessage("Level " + currentLevel + " reached!");
         initializeLevel();  // First initialize the level
         showLevelUpRewards();  // Then show rewards
@@ -217,6 +221,7 @@ public class MazmorraActivity extends AppCompatActivity {
             public void onAttackSelected() {
                 player.increaseDamage(1);
                 showMessage("Attack increased!");
+                powerUpSelected = true; // Set flag when power-up is selected
                 getSupportFragmentManager().beginTransaction()
                     .remove(powerUpFragment)
                     .commit();
@@ -226,6 +231,7 @@ public class MazmorraActivity extends AppCompatActivity {
             public void onHealSelected() {
                 player.heal(player.getMaxHealth());
                 showMessage("Fully healed!");
+                powerUpSelected = true; // Set flag when power-up is selected
                 getSupportFragmentManager().beginTransaction()
                     .remove(powerUpFragment)
                     .commit();
@@ -388,12 +394,17 @@ public class MazmorraActivity extends AppCompatActivity {
     }
 
     private void handlePlayerMove(Direction direction) {
+        // Add power-up check
+        if (!powerUpSelected) {
+            showMessage("¡Debes elegir un power-up para continuar!");
+            return;
+        }
+
         // Verificación estricta de estado de batalla
         if (inBattle || currentEnemy != null) {
             showMessage("¡No puedes moverte durante el combate!");
             return;
         }
-
         Point currentPos = player.getPosition();
         // Comprobar si hay enemigos adyacentes antes de moverse
         for (Enemy enemy : enemies) {
