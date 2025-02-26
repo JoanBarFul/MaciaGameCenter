@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import java.util.List;
 import com.example.maciagamecenter.mazmorra.MazmorraActivity;
+import com.example.maciagamecenter.Game2048Activity; // Añadir este import
 
 public class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerViewHolder> {
     private List<Banner> banners;
@@ -30,15 +31,21 @@ public class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerView
     @Override
     public void onBindViewHolder(@NonNull BannerViewHolder holder, int position) {
         Banner banner = banners.get(position);
-        holder.imageView.setImageResource(banner.getImageResId());
-        holder.title.setText(banner.getTitle());
+        String title = banner.getTitle();
+        int imageId = banner.getImageResId();
+        
+        holder.imageView.setImageResource(imageId);
+        holder.title.setText(title);
         
         holder.itemView.setOnClickListener(v -> {
             Context context = v.getContext();
-            if (banner.getTitle().equals("2024")) {
-                context.startActivity(new Intent(context, Game2048Activity.class));
-            } else if (banner.getTitle().equals("Dungeon")) {
-                context.startActivity(new Intent(context, MazmorraActivity.class));
+            // Simplemente abrimos la actividad según la posición
+            if (position == 0) {  // Primer banner
+                Intent intent = new Intent(context, Game2048Activity.class);
+                context.startActivity(intent);
+            } else if (position == 1) {  // Segundo banner
+                Intent intent = new Intent(context, MazmorraActivity.class);
+                context.startActivity(intent);
             }
         });
     }
