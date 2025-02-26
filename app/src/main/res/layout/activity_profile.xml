@@ -3,21 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="#FFFFFF">  <!-- Fondo blanco -->
 
-    <!-- Cabecera con título -->
+    <!-- Cabecera con logo -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="#6200EE">
+        android:background="#FFFFFF">  <!-- Cambiado a blanco -->
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="MaciaGameCenter"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"
+        <ImageView
+            android:layout_width="200dp"
+            android:layout_height="80dp"
+            android:src="@drawable/logoapp"
+            android:layout_gravity="center_horizontal"
+            android:scaleType="fitCenter"
             android:padding="16dp"/>
 
         <!-- Información del perfil -->
@@ -27,7 +28,8 @@
             android:layout_margin="16dp"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp"
-            app:cardBackgroundColor="#5502D1">
+            app:cardBackgroundColor="#F5F5F5">  <!-- Cambiado a gris claro -->
+            
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -39,7 +41,7 @@
                 android:layout_height="80dp"
                 android:src="@drawable/default_profile"
                 app:civ_border_width="2dp"
-                app:civ_border_color="#FFFFFF"/>
+                app:civ_border_color="#6200EE"/>
         <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -51,14 +53,14 @@
                 android:id="@+id/usernameText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#FFFFFF"
+                android:textColor="#000000"
                 android:textSize="24sp"
                 android:textStyle="bold"/>
         <TextView
                 android:id="@+id/userLevel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#E0E0E0"
+                android:textColor="#757575"
                 android:textSize="16sp"/>
             </LinearLayout>
         </LinearLayout>
